@@ -1,8 +1,8 @@
 #!/bin/bash
-PKGDEST="${PWD}/repo/packages"
+PKGDEST="${PWD}/packages"
 SRCDEST="${PWD}/build"
-REPO_DEST="${PWD}/repo/kunoisayami.db.tar.xz"
-REPO_PENDING="${PWD}/repo/PENDING"
+REPO_DEST="${PWD}/packages/kunoisayami.db.tar.xz"
+REPO_PENDING="${PWD}/packages/PENDING"
 touch "$REPO_PENDING"
 pushd kunoisayami
 for folder in */ ; do
