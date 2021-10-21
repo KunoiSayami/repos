@@ -8,7 +8,7 @@ pushd kunoisayami
 for folder in */ ; do
     PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$folder"
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST makepkg --clean
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST makepkg --clean --sign
     if [ $? == 0 ]; then
         echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     fi
@@ -17,7 +17,7 @@ for folder in */ ; do
 done
 popd
 while read PACKAGE_NAME; do
-    LATEST=$(ls -t "$PKGDEST/$PACKAGE_NAME"* | head -n 1 | cut -d' ' -f1)
+    LATEST=$(ls -t "$PKGDEST/$PACKAGE_NAME"* | grep -v ".sig" | head -n 1 | cut -d' ' -f1)
     repo-add "$REPO_DEST" "$LATEST" -s -v -R
 done < "$REPO_PENDING"
 unset PACKAGE_NAME
