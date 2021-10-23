@@ -1,0 +1,35 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Gavin Lloyd <gavinhungry@gmail.com>
+
+pkgname=acme.sh-letsencrypt
+pkgver=3.0.0
+pkgrel=1
+pkgdesc='An ACME Shell script, an acme client alternative to certbot, but we use letsencrypt by default'
+arch=('any')
+url='https://github.com/acmesh-official/acme.sh'
+license=('GPL3')
+depends=('bash')
+optdepends=('socat: for standalone mode')
+source=("acme.sh-$pkgver.tar.gz::https://github.com/acmesh-official/acme.sh/archive/$pkgver.tar.gz")
+sha512sums=('e93e955100071fda9398131aad965fe6d5b51d9c496b1db0269744513baca4c8eb142d9a35a72b72d4919c004848696fdf9de1ae51edec835ae0f695a6cb14b1')
+
+provides=('acme.sh')
+conflicts=('acme.sh')
+
+package() {
+  cd acme.sh-$pkgver
+
+  install -dm755 "$pkgdir"/usr/share/acme.sh/deploy
+  install -dm755 "$pkgdir"/usr/share/acme.sh/dnsapi
+  install -dm755 "$pkgdir"/usr/share/acme.sh/notify
+  install -dm755 "$pkgdir"/usr/bin
+
+  sed -i 's/DEFAULT_CA=$CA_ZEROSSL/DEFAULT_CA=$CA_LETSENCRYPT_V2/g' acme.sh
+
+  install -m755 acme.sh "$pkgdir"/usr/share/acme.sh/
+  install -m755 deploy/*.sh "$pkgdir"/usr/share/acme.sh/deploy/
+  install -m755 dnsapi/*.sh "$pkgdir"/usr/share/acme.sh/dnsapi/
+  install -m755 notify/*.sh "$pkgdir"/usr/share/acme.sh/notify/
+
+  ln -s /usr/share/acme.sh/acme.sh "$pkgdir"/usr/bin/acme.sh
+}
