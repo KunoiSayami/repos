@@ -14,7 +14,7 @@ to your /etc/pacman.conf .
 #### Import PGP Keys:
 
 ```bash
-curl -fL https://keys.openpgp.org/vks/v1/by-fingerprint/43C24AB2392DFB61D7A5E4838B97E42C37978965 | sudo pacman-key --add -
-sudo pacman-key --finger 43C24AB2392DFB61D7A5E4838B97E42C37978965
-sudo pacman-key --lsign-key 43C24AB2392DFB61D7A5E4838B97E42C37978965
+curl -fL https://keys.openpgp.org/vks/v1/by-fingerprint/4A0F0C8BC709ACA4341767FB243975C8DB9656B9 | sudo pacman-key --add -
+sudo pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
+sudo pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 ```
