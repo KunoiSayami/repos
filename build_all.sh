@@ -10,7 +10,7 @@ pushd kunoisayami
 for folder in */ ; do
     PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$folder"
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF=$CONFDEST makepkg --clean --sign --key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF=$CONFDEST makepkg --clean
     if [ $? == 0 ]; then
         echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     fi
