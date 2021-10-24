@@ -5,6 +5,7 @@ ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
+CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DEST="${PWD}/packages/$ARCH/$REPO_BASE_NAME.db.tar.xz"
 REPO_PENDING="${PWD}/packages/$ARCH/PENDING"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
@@ -50,6 +51,7 @@ echo $(date +%s) > "$PKGDEST/LASTBUILD"
 unset PACKAGE_NAME
 unset PKGDEST
 unset SRCDEST
+unset CONFDEST
 unset REPO_DEST
 rm -rf "$REPO_PENDING"
 rm -rf "$REPO_DIFF"
