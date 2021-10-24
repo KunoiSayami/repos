@@ -5,9 +5,15 @@ ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
+CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DEST="${PWD}/packages/$ARCH/$REPO_BASE_NAME.db.tar.xz"
 REPO_PENDING="${PWD}/packages/$ARCH/PENDING"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
+
+trap 'rm -f "$TMPCONF"' EXIT
+TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
+cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
+cat "$CONFDEST" >> "$TMPCONF"
 
 touch "$REPO_DIFF"
 touch "$REPO_PENDING"
@@ -30,7 +36,7 @@ pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild direct
 while read PACKAGE_NAME ; do
     #PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$PACKAGE_NAME" || continue
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF=$CONFDEST makepkg --clean
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean
     if [ $? == 0 ]; then
         echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     fi
@@ -50,6 +56,7 @@ echo $(date +%s) > "$PKGDEST/LASTBUILD"
 unset PACKAGE_NAME
 unset PKGDEST
 unset SRCDEST
+unset CONFDEST
 unset REPO_DEST
 rm -rf "$REPO_PENDING"
 rm -rf "$REPO_DIFF"
