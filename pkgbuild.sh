@@ -36,7 +36,7 @@ pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild direct
 while read PACKAGE_NAME ; do
     #PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$PACKAGE_NAME" || continue
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s
     if [ $? == 0 ]; then
         echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     fi
@@ -61,3 +61,7 @@ unset REPO_DEST
 rm -rf "$REPO_PENDING"
 rm -rf "$REPO_DIFF"
 unset REPO_PENDING
+unset REPO_DIFF
+unset PKGBUILD_DIRECTORY_BASE
+unset ARCH
+unset REPO_BASE_NAME
