@@ -2,7 +2,7 @@
 
 REPO_BASE_NAME="kunoisayami"
 ARCH=$(uname -m)
-PKGBUILD_DIRECTORY_BASE="kunoisayami"
+PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 REPO_DEST="${PWD}/packages/$ARCH/$REPO_BASE_NAME.db.tar.xz"
