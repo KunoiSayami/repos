@@ -6,11 +6,13 @@ build:
   tags:
     - medium
 
+  only:
+    changes:
+      - repo/**/*
+
   script:
     - pacman --noconfirm --needed -Syu base-devel gnupg git
-    - ls
     - useradd -m build
-    - ls ..
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     - cp -r ../$CI_PROJECT_TITLE  /home/build/
     - cd /home/build/$CI_PROJECT_TITLE
