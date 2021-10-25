@@ -1,10 +1,15 @@
 default:
+  tags:
+    - medium
   image:
     archlinux:latest
 
+stages:
+  - pkg
+  - post
+
 build:
-  tags:
-    - medium
+  stage: pkg
 
   only:
     changes:
@@ -20,5 +25,19 @@ build:
     - chown -R build:build ../$CI_PROJECT_TITLE
     - su -c "bash -c 'cd repo/pod2man && makepkg -i --noconfirm'" build
     - su -c 'gpg --import ../key.asc' build
-    - su -c 'BUILD_ONLY='' ./pkgbuild.sh' build
+    - su -c 'BUILD_ONLY='' ./pkgbuild.sh --all' build
+
+# only push to master master trigger push
+push:
+  stage: post
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  
+  only:
+    changes:
+      - repo/**/*
+
+  script:
+    - cd /home/build/$CI_PROJECT_TITLE
     - su -m -c './ci-upload.sh' build
