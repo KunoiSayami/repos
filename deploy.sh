@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# end up when failed
+set -Eeuo pipefail
+
 if [ $# -eq 0 ]; then
     echo 'Should provide least one argument'
     exit 1

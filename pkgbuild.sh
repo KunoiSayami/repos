@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# end up when failed
+set -Eeuo pipefail
+
+# clean up when exit
+trap cleanup SIGINT SIGTERM ERR EXIT
+cleanup() {
+	trap - SIGINT SIGTERM ERR EXIT
+	unset PACKAGE_NAME
+	unset PKGDEST
+	unset SRCDEST
+	unset CONFDEST
+	unset REPO_DEST
+	rm -f "$TMPCONF"
+	rm -rf "$REPO_PENDING"
+	rm -rf "$REPO_DIFF"
+	unset TMPCONF
+	unset REPO_PENDING
+	unset REPO_DIFF
+	unset PKGBUILD_DIRECTORY_BASE
+	unset ARCH
+}
+
 ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
@@ -8,7 +30,6 @@ CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_PENDING="${PWD}/packages/$ARCH/PENDING"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
 
-trap 'rm -f "$TMPCONF"' EXIT
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
 cat "$CONFDEST" >> "$TMPCONF"
@@ -61,15 +82,3 @@ fi
 
 date +%s > "$PKGDEST/LASTBUILD"
 
-unset PACKAGE_NAME
-unset PKGDEST
-unset SRCDEST
-unset CONFDEST
-unset REPO_DEST
-rm -rf "$REPO_PENDING"
-rm -rf "$REPO_DIFF"
-unset REPO_PENDING
-unset REPO_DIFF
-unset PKGBUILD_DIRECTORY_BASE
-unset ARCH
-unset REPO_BASE_NAME
