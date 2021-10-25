@@ -1,12 +1,10 @@
 #!/bin/bash
 
-REPO_BASE_NAME="kunoisayami"
 ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
-REPO_DEST="${PWD}/packages/$ARCH/$REPO_BASE_NAME.db.tar.xz"
 REPO_PENDING="${PWD}/packages/$ARCH/PENDING"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
 
@@ -18,9 +16,7 @@ cat "$CONFDEST" >> "$TMPCONF"
 touch "$REPO_DIFF"
 touch "$REPO_PENDING"
 
-if [ $# -gt 0 ] &&  [ "$1" = "--all" ]; then
-    ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
-else
+function get_diff_list {
     git diff --name-only HEAD^ | while read line; do
         if [[ $line =~ $PKGBUILD_DIRECTORY_BASE ]]; then
             echo "$line" | cut -d'/' -f2 >> "$REPO_DIFF"
@@ -29,6 +25,17 @@ else
     cp "$REPO_DIFF"  "${REPO_DIFF}_tmp"
     sort "${REPO_DIFF}_tmp" | uniq -u > "$REPO_DIFF"
     rm -rf "${REPO_DIFF}_tmp"
+}
+
+if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
+    get_diff_list
+    exit 0
+fi
+
+if [ $# -gt 0 ] && [ "$1" = "--all" ]; then
+    ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
+else
+    get_diff_list
 fi
 
 pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild directory" && exit 1 )
@@ -46,12 +53,13 @@ done < "$REPO_DIFF"
 
 popd
 
-while read PACKAGE_NAME; do
-    LATEST=$(ls -t "$PKGDEST/$PACKAGE_NAME"* | grep -v ".sig" | head -n 1 | cut -d' ' -f1)
-    repo-add "$REPO_DEST" "$LATEST" -s -v -R -k 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
-done < "$REPO_PENDING"
+if [ -z "${BUILD_ONLY+x}" ]; then
+    ./repodb.sh < "$REPO_PENDING"
+else
+    echo "Add package to database is skipped"
+fi
 
-echo $(date +%s) > "$PKGDEST/LASTBUILD"
+date +%s > "$PKGDEST/LASTBUILD"
 
 unset PACKAGE_NAME
 unset PKGDEST
