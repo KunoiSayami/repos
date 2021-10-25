@@ -12,10 +12,10 @@ build:
     - useradd -m build
     - ls ..
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
-    - cp -r ../repos-test /home/build/
-    - cd /home/build/repos-test
+    - cp -r ../$CI_PROJECT_TITLE  /home/build/
+    - cd /home/build/$CI_PROJECT_TITLE
     - echo $GPG_PRIV_KEY | base64 -d > ../key.asc
-    - chown -R build:build ../repos-test
+    - chown -R build:build ../$CI_PROJECT_TITLE
     - su -c "bash -c 'cd repo/pod2man && makepkg -i --noconfirm'" build
     - su -c 'gpg --import ../key.asc' build
     - su -c 'BUILD_ONLY='' ./pkgbuild.sh' build
