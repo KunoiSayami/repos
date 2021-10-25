@@ -5,12 +5,15 @@ default:
     archlinux:latest
 
 stages:
-  - pkg
+  - build
   - post
 
 build:
-  stage: pkg
+  stage: build
 
+  artifacts:
+    untracked: true
+    expire_in: 1 day
   only:
     changes:
       - repo/**/*
@@ -19,16 +22,16 @@ build:
     - pacman --noconfirm --needed -Syu base-devel gnupg git
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
-    - cp -r ../$CI_PROJECT_TITLE  /home/build/
-    - cd /home/build/$CI_PROJECT_TITLE
-    - echo $GPG_PRIV_KEY | base64 -d > ../key.asc
+    #- cp -r ../$CI_PROJECT_TITLE  /home/build/
+    #- cd /home/build/$CI_PROJECT_TITLE
     - chown -R build:build ../$CI_PROJECT_TITLE
     - su -c "bash -c 'cd repo/pod2man && makepkg -i --noconfirm'" build
-    - su -c 'gpg --import ../key.asc' build
-    - su -c 'BUILD_ONLY='' ./pkgbuild.sh --all' build
+    - su -c 'echo $GPG_PRIV_KEY | base64 -d | gpg --import' build
+    - su -c 'BUILD_ONLY='' ./pkgbuild.sh' build
+    - rm -rf build/
 
 # only push to master master trigger push
-push:
+post:
   stage: post
 
   only:
@@ -38,5 +41,5 @@ push:
       - repo/**/*
 
   script:
-    - cd /home/build/$CI_PROJECT_TITLE
-    - su -m -c './ci-upload.sh' build
+    - if [ -n "$TARGET_HOSTS" ]; then echo "$TARGET_HOSTS" | base64 -d >> /etc/hosts; fi;
+    - bash -c './ci-upload.sh'
