@@ -19,9 +19,9 @@ curl -d "token=$UPLOAD_TOKEN&action=REQUIRE_CLEAN" -fsSL "$REMOTE_PATH"
 pushd $PKGDEST
 
 for file in *.pkg*; do
-	echo "Start upload package $file ..."
+	echo "Start upload package $file size: $(ls -lh $file | awk '{print  $5}')..."
     curl -F "file=@$file" -F "token=$UPLOAD_TOKEN" -fsSL "$REMOTE_PATH"
-	echo "Stop upload package $file"
+	#echo "Stop upload package $file"
 done
 
 popd
