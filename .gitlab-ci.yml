@@ -31,10 +31,9 @@ build:
 push:
   stage: post
 
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  
   only:
+    refs:
+      - master
     changes:
       - repo/**/*
 
