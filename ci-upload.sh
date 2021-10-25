@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# end up when failed
+set -Eeuo pipefail
+
+# clean up when exit
+trap cleanup SIGINT SIGTERM ERR EXIT
+cleanup() {
+	trap - SIGINT SIGTERM ERR EXIT
+	unset ARCH
+	unset PKGDEST
+}
+
 ARCH=$(uname -m)
 PKGDEST="${PWD}/packages/$ARCH"
 
@@ -15,5 +26,3 @@ popd
 
 curl -d "token=$UPLOAD_TOKEN&action=UPLOADED" -fsSL "$REMOTE_PATH"
 
-unset ARCH
-unset PKGDEST

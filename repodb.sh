@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# end up when failed
+set -Eeuo pipefail
+
+# clean up when exit
+trap cleanup SIGINT SIGTERM ERR EXIT
+cleanup() {
+	trap - SIGINT SIGTERM ERR EXIT
+	unset ARCH
+	unset PKGDEST
+	unset REPO_DEST
+	unset GPG_KEY
+	unset PACKAGE_NAME
+	unset LATEST
+}
+
 REPO_BASE_NAME="kunoisayami"
 ARCH=$(uname -m)
 PKGDEST="${PWD}/packages/$ARCH"
@@ -13,10 +28,3 @@ while read PACKAGE_NAME; do
     fi
     repo-add "$REPO_DEST" "$PACKAGENAME" -s -v -R -k $GPG_KEY
 done
-
-unset ARCH
-unset PKGDEST
-unset REPO_DEST
-unset GPG_KEY
-unset PACKAGE_NAME
-unset LATEST
