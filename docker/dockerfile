@@ -1,0 +1,13 @@
+FROM repobuildbase:latest
+
+RUN pacman --noconfirm --needed -Syu base-devel gnupg git
+
+RUN useradd -m build
+
+RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
+
+COPY dockerbuild.sh /home/build/
+
+USER build
+
+ENTRYPOINT ["bash", "-c", "/home/build/dockerbuild.sh"]
