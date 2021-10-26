@@ -14,17 +14,17 @@ cleanup() {
 ARCH=$(uname -m)
 PKGDEST="${PWD}/packages/$ARCH"
 
-curl -d "token=$UPLOAD_TOKEN&action=REQUIRE_CLEAN" -fsSL "$REMOTE_PATH"
+curl -d "token=$UPLOAD_TOKEN&action=REQUIRE_CLEAN&arch=$ARCH" -fsSL "$REMOTE_PATH"
 
 pushd $PKGDEST
 
 for file in *.pkg*; do
 	echo "Start upload package $file size: $(ls -lh $file | awk '{print  $5}')..."
-    curl -F "file=@$file" -F "token=$UPLOAD_TOKEN" -fsSL "$REMOTE_PATH"
+    curl -F "file=@$file" -F "token=$UPLOAD_TOKEN" -F "arch=$ARCH" -fsSL "$REMOTE_PATH"
 	#echo "Stop upload package $file"
 done
 
 popd
 
-curl -d "token=$UPLOAD_TOKEN&action=UPLOADED" -fsSL "$REMOTE_PATH"
+curl -d "token=$UPLOAD_TOKEN&action=UPLOADED&arch=$ARCH" -fsSL "$REMOTE_PATH"
 

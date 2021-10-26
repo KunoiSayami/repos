@@ -15,8 +15,13 @@ cleanup() {
 	unset LATEST
 }
 
+if [ -z $ARCH ]; then
+	ARCH=$(uname -m)
+	echo "Warning: You should specify arch environment variable, use current platform: $ARCH"
+fi
+
 REPO_BASE_NAME="kunoisayami"
-ARCH=$(uname -m)
+#ARCH=$(uname -m)
 REPO_DEST="${PWD}/packages/$ARCH/$REPO_BASE_NAME.db.tar.xz"
 GPG_KEY="4A0F0C8BC709ACA4341767FB243975C8DB9656B9"
 

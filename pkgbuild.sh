@@ -13,8 +13,8 @@ cleanup() {
 	unset CONFDEST
 	unset REPO_DEST
 	rm -f "$TMPCONF"
-	rm -rf "$REPO_PENDING"
-	rm -rf "$REPO_DIFF"
+	rm -f "$REPO_PENDING"
+	rm -f "$REPO_DIFF"
 	unset TMPCONF
 	unset REPO_PENDING
 	unset REPO_DIFF
@@ -53,7 +53,7 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
     exit 0
 fi
 
-if [ $# -gt 0 ] && [ "$1" = "--all" ] || [[ $CI_COMMIT_TITLE =~ "fix(repo)" ]]; then
+if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -z "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ "fix(repo)" ]]; then
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
@@ -65,10 +65,7 @@ while read PACKAGE_NAME ; do
     #PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$PACKAGE_NAME" || continue
     SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar
-    if [ $? == 0 ]; then
-        echo "$PACKAGE_NAME" >> "$REPO_PENDING"
-    fi
-    #cp "$PACKAGE_NAME"* ../../../packages/
+    echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     popd
 done < "$REPO_DIFF"
 
