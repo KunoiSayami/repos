@@ -1,0 +1,45 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+
+pkgname=telegram-bot-api
+pkgver=5.3.3
+pkgrel=1
+pkgdesc='The Telegram Bot API provides an HTTP API for creating Telegram Bots.'
+arch=('any')
+url=https://github.com/tdlib/telegram-bot-api/
+source=(git://github.com/tdlib/telegram-bot-api.git#commit=36b0c4426a0e88aa88300b56c08f35442c15dded)
+license=('BSL-1.0')
+md5sums=('SKIP')
+makedepends=('gperf' 'cmake' 'gcc' 'git')
+depends=('openssl' 'zlib')
+
+prepare() {
+    cd "$srcdir/$pkgname/"
+    git submodule update --init
+}
+
+build() {
+    cd "$srcdir/$pkgname"
+
+    if [ ! -d build ]; then
+        mkdir build/
+    fi
+    cd build/
+
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+
+    cmake --build . --parallel $(nproc)
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+
+    install -dm755 "$pkgdir"/usr/share/"$pkgname"/
+    install -dm755 "$pkgdir"/usr/share/license/"$pkgname"
+    install -dm755 "$pkgdir"/usr/bin
+
+    install -m755 build/"$pkgname" "$pkgdir"/usr/share/"$pkgname"/
+
+    install -Dm644 LICENSE_1_0.txt "$pkgdir"/usr/share/license/"$pkgname"/
+
+    ln -s /usr/share/"$pkgname"/"$pkgname" "$pkgdir"/usr/bin/"$pkgname"
+}
