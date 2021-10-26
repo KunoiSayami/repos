@@ -7,7 +7,7 @@ KunoiSayami's Arch Linux Community Repository
 
 ```
 [kunoisayami]
-Server = https://MASKED/$repo
+Server = https://MASKED/$arch
 ```
 to your `/etc/pacman.conf` .
 
