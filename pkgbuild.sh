@@ -64,6 +64,10 @@ pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild direct
 while read PACKAGE_NAME ; do
     #PACKAGE_NAME=$(printf $folder | sed 's/.$//')
     pushd "$PACKAGE_NAME" || continue
+    if ! ( pcregrep -M 'arch=\([^\)]*\)' PKGBUILD | grep -E "$ARCH|any" >/dev/null ); then
+        popd
+        continue
+    fi
     SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar
     echo "$PACKAGE_NAME" >> "$REPO_PENDING"
     popd
