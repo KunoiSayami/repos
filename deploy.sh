@@ -8,4 +8,4 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 /usr/bin/date +%s > "packages/LASTSYNC"
-/usr/bin/rsync --partial -r --update --links --delete --exclude=.gitignore "packages/" $1:/var/www/repo/
+/usr/bin/rsync --partial -r -c --update --links --delete --exclude=.gitignore "packages/" $1:/var/www/repo/
