@@ -2,10 +2,8 @@
 
 set -Eeuo pipefail
 
-#export
-
 cd /home/build
-git clone --depth=1 https://github.com/kunoisayami/repos
+git clone --depth=3 https://github.com/kunoisayami/repos
 
 
 if [ $UID -eq 0 ]; then
@@ -22,6 +20,7 @@ if [ $UID -eq 0 ]; then
     pushd repo/pod2man
     su -c 'makepkg -i -s --noconfirm --needed' build
     popd
+
     su -c 'BUILD_ONLY="" ./pkgbuild.sh' build
 
     su -e -c './ci-upload.sh' build
@@ -32,7 +31,9 @@ else
     pushd repo/pod2man
     makepkg -i -s --noconfirm --needed
     popd
+
     BUILD_ONLY='' ./pkgbuild.sh
+
     ./ci-upload.sh
 
 fi

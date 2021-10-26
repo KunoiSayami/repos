@@ -53,7 +53,7 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
     exit 0
 fi
 
-if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -z "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ "fix(repo)" ]]; then
+if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ "fix(repo)" ]]; then
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
