@@ -1,3 +1,6 @@
 [submodule "repo/obs-linuxbrowser-bin"]
 	path = repo/obs-linuxbrowser-bin
 	url = https://aur.archlinux.org/obs-linuxbrowser-bin.git
+[submodule "repo/gconf"]
+	path = repo/gconf
+	url = https://aur.archlinux.org/gconf.git

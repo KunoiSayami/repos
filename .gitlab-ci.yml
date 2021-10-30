@@ -25,8 +25,9 @@ build:
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
     #- cd /home/build/$CI_PROJECT_TITLE
-    - chown -R build:build ../$CI_PROJECT_TITLE
+    - chown -R build:build ../$CI_PROJECT_TITLE 
     - su -c "bash -c 'cd repo/pod2man && makepkg -i --noconfirm'" build
+    - su -c "bash -c 'cd repo/gconf && makepkg -i --noconfirm'" build
     - su -c 'echo $GPG_PRIV_KEY | base64 -d | gpg --import' build
     - su -c 'BUILD_ONLY='' ./pkgbuild.sh' build
     - rm -rf build/
