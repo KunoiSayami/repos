@@ -20,6 +20,7 @@ build:
 
   script:
     - pacman --noconfirm --needed -Syu base-devel gnupg git
+    - git submodule update --init
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
