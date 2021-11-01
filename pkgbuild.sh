@@ -7,6 +7,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 cleanup() {
 	trap - SIGINT SIGTERM ERR EXIT
+    unset SKIP_VERIFIED
 	unset FOLDER_NAME
 	unset PKGDEST
 	unset SRCDEST
@@ -27,6 +28,7 @@ PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
+SKIP_VERIFIED=0
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
@@ -50,7 +52,10 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
     exit 0
 fi
 
-if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|ci\ rerun ]]; then
+if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]]; then
+    if [ -z "${SKIP_SOME+x}" ] || [ -n "$CI_COMMIT_MESSAGE" ] && [[ $CI_COMMIT_MESSAGE =~ \[SKIP\ SOME\] ]]; then
+        SKIP_VERIFIED=1
+    fi
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
@@ -59,9 +64,17 @@ fi
 pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild directory" && exit 1 )
 
 while read FOLDER_NAME ; do
+    if [ ! -d "$FOLDER_NAME" ]; then
+        continue
+    fi
     pushd "$FOLDER_NAME" || continue
     # Check PKGBUILD architecture
     if ! ( pcregrep -M 'arch=\([^\)]*\)' PKGBUILD | grep -E "$ARCH|any" >/dev/null ); then
+        popd
+        continue
+    fi
+
+    if [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
         popd
         continue
     fi
