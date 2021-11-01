@@ -16,6 +16,8 @@ build:
     expire_in: 1 day
   only:
     changes:
+      - .gitlab-ci.yml
+      - pkgbuild.sh
       - repo/**/*
 
   script:
