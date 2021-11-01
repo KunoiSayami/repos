@@ -35,7 +35,7 @@ PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
-SKIP_VERIFIED=0
+SKIP_VERIFIED=1
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
@@ -60,8 +60,8 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
 fi
 
 if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]]; then
-    if [ -z "${SKIP_SOME+x}" ] || [ -n "$CI_COMMIT_MESSAGE" ] && [[ $CI_COMMIT_MESSAGE =~ \[SKIP\ SOME\] ]]; then
-        SKIP_VERIFIED=1
+    if [ -z "${SKIP_SOME+x}" ] || [ -n "$CI_COMMIT_MESSAGE" ] && [[ $CI_COMMIT_MESSAGE =~ \[FORCE\ ALL\] ]]; then
+        SKIP_VERIFIED=0
     fi
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
