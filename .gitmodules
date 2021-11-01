@@ -4,3 +4,9 @@
 [submodule "repo/gconf"]
 	path = repo/gconf
 	url = https://aur.archlinux.org/gconf.git
+[submodule "repo/glib2-static"]
+	path = repo/glib2-static
+	url = https://aur.archlinux.org/glib2-static.git
+[submodule "repo/qemu-user-static"]
+	path = repo/qemu-user-static
+	url = https://aur.archlinux.org/qemu-user-static.git

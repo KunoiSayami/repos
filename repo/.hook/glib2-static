@@ -1,0 +1,4 @@
+#!/bin/bash
+[ ! -r /var/lib/dbus/machine-id ] && dbus-uuidgen | sudo tee /var/lib/dbus/machine-id
+sed -i 's/e \\/e/g' PKGBUILD
+sed -i 's/-Dinternal_pcre=false//g' PKGBUILD

@@ -22,13 +22,20 @@ cleanup() {
 	unset ARCH
 }
 
+function hook {
+    if [ -r ../.hook/"$1" ]; then
+        echo "Running $1 Hook script"
+        . ../.hook/"$1"
+    fi
+}
+
 ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
-SKIP_VERIFIED=0
+SKIP_VERIFIED=1
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
@@ -38,7 +45,9 @@ touch "$REPO_DIFF"
 
 function get_diff_list {
     git diff --name-only HEAD^ | while read line; do
-        if [[ $line =~ $PKGBUILD_DIRECTORY_BASE ]]; then
+        if [[ $line =~ $PKG/\..* ]] && [ $line != "$PKG/.verified_repos" ]; then
+            echo "$line" | cut -d'/' -f3 >> "$REPO_DIFF"
+        elif [[ $line =~ $PKGBUILD_DIRECTORY_BASE ]]; then
             echo "$line" | cut -d'/' -f2 >> "$REPO_DIFF"
         fi
     done
@@ -53,8 +62,8 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
 fi
 
 if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]]; then
-    if [ -z "${SKIP_SOME+x}" ] || [ -n "$CI_COMMIT_MESSAGE" ] && [[ $CI_COMMIT_MESSAGE =~ \[SKIP\ SOME\] ]]; then
-        SKIP_VERIFIED=1
+    if [ -z "${FORCE_ALL+x}" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ REBUILD(\ |_)ALL ]]; then
+        SKIP_VERIFIED=0
     fi
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
@@ -83,6 +92,7 @@ while read FOLDER_NAME ; do
         while read YAYDEP ; do
             if [ -d "../$YAYDEP" ]; then
                 pushd "../$YAYDEP"
+                hook "$YAYDEP"
                 SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -si --asdeps --noconfirm --needed --noprogressbar
                 popd
             else
@@ -95,6 +105,7 @@ while read FOLDER_NAME ; do
         . ../.gpg_keys/"$FOLDER_NAME"
     fi
 
+    hook "$FOLDER_NAME"
     SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo "Skip $FOLDER_NAME"
     popd
 done < "$REPO_DIFF"
