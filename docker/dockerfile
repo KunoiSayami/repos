@@ -1,6 +1,12 @@
 FROM repobuildbase:latest
 
-RUN pacman --noconfirm --needed -Syu base-devel gnupg git
+RUN echo -e "\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$$arch\n" >> /etc/pacman.conf
+
+RUN pacman-key --init
+
+RUN pacman --noconfirm --needed -Sy archlinuxcn-keyring
+
+RUN pacman --noconfirm --needed -Su base-devel gnupg git yay
 
 RUN useradd -m build
 

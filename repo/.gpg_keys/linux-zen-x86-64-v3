@@ -1,0 +1,2 @@
+#!/bin/bash
+gpg --recv-keys --keyserver pgp.mit.edu 3B94A80E50A477C7

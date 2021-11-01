@@ -7,13 +7,13 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 cleanup() {
 	trap - SIGINT SIGTERM ERR EXIT
-	unset PACKAGE_NAME
+    unset SKIP_VERIFIED
+	unset FOLDER_NAME
 	unset PKGDEST
 	unset SRCDEST
 	unset CONFDEST
 	unset REPO_DEST
 	rm -f "$TMPCONF"
-	rm -f "$REPO_PENDING"
 	rm -f "$REPO_DIFF"
 	unset TMPCONF
 	unset REPO_PENDING
@@ -27,15 +27,14 @@ PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
-REPO_PENDING="${PWD}/packages/$ARCH/PENDING"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
+SKIP_VERIFIED=0
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
 cat "$CONFDEST" >> "$TMPCONF"
 
 touch "$REPO_DIFF"
-touch "$REPO_PENDING"
 
 function get_diff_list {
     git diff --name-only HEAD^ | while read line; do
@@ -53,7 +52,10 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
     exit 0
 fi
 
-if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ "fix(repo)" ]]; then
+if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]]; then
+    if [ -z "${SKIP_SOME+x}" ] || [ -n "$CI_COMMIT_MESSAGE" ] && [[ $CI_COMMIT_MESSAGE =~ \[SKIP\ SOME\] ]]; then
+        SKIP_VERIFIED=1
+    fi
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
@@ -61,24 +63,46 @@ fi
 
 pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild directory" && exit 1 )
 
-while read PACKAGE_NAME ; do
-    #PACKAGE_NAME=$(printf $folder | sed 's/.$//')
-    pushd "$PACKAGE_NAME" || continue
+while read FOLDER_NAME ; do
+    if [ ! -d "$FOLDER_NAME" ]; then
+        continue
+    fi
+    pushd "$FOLDER_NAME" || continue
+    # Check PKGBUILD architecture
     if ! ( pcregrep -M 'arch=\([^\)]*\)' PKGBUILD | grep -E "$ARCH|any" >/dev/null ); then
         popd
         continue
     fi
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar
-    echo "$PACKAGE_NAME" >> "$REPO_PENDING"
+
+    if [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
+        popd
+        continue
+    fi
+
+    if [ -r ../.yaydeps/"$FOLDER_NAME" ]; then
+        while read YAYDEP ; do
+            if [ -d "../$YAYDEP" ]; then
+                pushd "../$YAYDEP"
+                SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -si --asdeps --noconfirm --needed --noprogressbar
+                popd
+            else
+                yay -S --noconfirm --needed --asdeps "$YAYDEP"
+            fi
+        done < ../.yaydeps/"$FOLDER_NAME"
+    fi
+
+    if [ -r ../.gpg_keys/"$FOLDER_NAME" ]; then
+        . ../.gpg_keys/"$FOLDER_NAME"
+    fi
+
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo "Skip $FOLDER_NAME"
     popd
 done < "$REPO_DIFF"
 
 popd
 
 if [ -z "${BUILD_ONLY+x}" ]; then
-    ./repodb.sh < "$REPO_PENDING"
-else
-    echo "Add package to database is skipped"
+    echo "This option is depreacted, this script isn't process repository database now"
 fi
 
 date +%s > "$PKGDEST/LASTBUILD"

@@ -16,20 +16,23 @@ build:
     expire_in: 1 day
   only:
     changes:
+      - .gitlab-ci.yml
+      - pkgbuild.sh
       - repo/**/*
 
   script:
-    - pacman --noconfirm --needed -Syu base-devel gnupg git
+    - echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch\n' >> /etc/pacman.conf
+    - pacman-key --init
+    - pacman --noconfirm --needed -Sy archlinuxcn-keyring
+    - pacman --noconfirm --needed -Su base-devel gnupg git yay
     - git submodule update --init
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
     #- cd /home/build/$CI_PROJECT_TITLE
-    - chown -R build:build ../$CI_PROJECT_TITLE 
-    - su -c "bash -c 'cd repo/pod2man && makepkg -si --noconfirm'" build
-    - su -c "bash -c 'cd repo/gconf && makepkg -si --noconfirm'" build
+    - chown -R build:build ../$CI_PROJECT_TITLE
     - su -c 'echo $GPG_PRIV_KEY | base64 -d | gpg --import' build
-    - su -c 'BUILD_ONLY='' ./pkgbuild.sh' build
+    - su -c './pkgbuild.sh' build
     - rm -rf build/
 
 # only push to master master trigger push
