@@ -22,7 +22,8 @@ build:
 
   script:
     - echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch\n' >> /etc/pacman.conf
-    - pacman --noconfirm --needed -Syu archlinuxcn-keyring base-devel gnupg git yay
+    - pacman --noconfirm --needed -Sy archlinuxcn-keyring
+    - pacman --noconfirm --needed -Su base-devel gnupg git yay
     - git submodule update --init
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
