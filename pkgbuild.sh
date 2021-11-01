@@ -45,7 +45,7 @@ touch "$REPO_DIFF"
 
 function get_diff_list {
     git diff --name-only HEAD^ | while read line; do
-        if [[ $line =~ $PKG/\..* ]] && [ $line != "$PKG/.verified_repos" ]; then
+        if [[ $line =~ $PKGBUILD_DIRECTORY_BASE/\..* ]] && [ $line != "$PKGBUILD_DIRECTORY_BASE/.verified_repos" ]; then
             echo "$line" | cut -d'/' -f3 >> "$REPO_DIFF"
         elif [[ $line =~ $PKGBUILD_DIRECTORY_BASE ]]; then
             echo "$line" | cut -d'/' -f2 >> "$REPO_DIFF"
