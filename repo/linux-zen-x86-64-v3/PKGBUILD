@@ -20,12 +20,12 @@ source=(
   "$_srcname::git+https://github.com/zen-kernel/zen-kernel?signed#tag=$_srctag"
   config         # the main kernel config file
 )
-validpgpkeys=(
-  'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds
-  '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman
-  'A2FF3A36AAA56654109064AB19802F8B0D70FC30'  # Jan Alexander Steffens (heftig)
-  'C5ADB4F3FEBBCE27A3E54D7D9AE4078033F8024D'  # Steven Barrett <steven@liquorix.net>
-)
+#validpgpkeys=(
+#  'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds
+#  '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman
+#  'A2FF3A36AAA56654109064AB19802F8B0D70FC30'  # Jan Alexander Steffens (heftig)
+#  'C5ADB4F3FEBBCE27A3E54D7D9AE4078033F8024D'  # Steven Barrett <steven@liquorix.net>
+#)
 sha256sums=('SKIP'
             'af494f8fd1f6e4a0305590be6a38d5e8d9784f97373c4be145b89c1eb49b8e58')
 
