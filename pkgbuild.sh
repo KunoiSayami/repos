@@ -22,6 +22,13 @@ cleanup() {
 	unset ARCH
 }
 
+function hook {
+    if [ -r ../.hook/"$1" ]; then
+        echo "Running $1 Hook script"
+        . ../.hook/"$1"
+    fi
+}
+
 ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
 PKGDEST="${PWD}/packages/$ARCH"
@@ -83,6 +90,7 @@ while read FOLDER_NAME ; do
         while read YAYDEP ; do
             if [ -d "../$YAYDEP" ]; then
                 pushd "../$YAYDEP"
+                hook "$YAYDEP"
                 SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -si --asdeps --noconfirm --needed --noprogressbar
                 popd
             else
@@ -95,6 +103,7 @@ while read FOLDER_NAME ; do
         . ../.gpg_keys/"$FOLDER_NAME"
     fi
 
+    hook "$FOLDER_NAME"
     SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo "Skip $FOLDER_NAME"
     popd
 done < "$REPO_DIFF"
