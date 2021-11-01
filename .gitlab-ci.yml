@@ -22,6 +22,7 @@ build:
 
   script:
     - echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch\n' >> /etc/pacman.conf
+    - pacman-key --init
     - pacman --noconfirm --needed -Sy archlinuxcn-keyring
     - pacman --noconfirm --needed -Su base-devel gnupg git yay
     - git submodule update --init
