@@ -1,6 +1,6 @@
 #!/bin/bash
 #gpg --recv-keys --keyserver pgp.mit.edu 3B94A80E50A477C7
-curl https://keys.openpgp.org/vks/v1/by-fingerprint/A2FF3A36AAA56654109064AB19802F8B0D70FC30 | gpg --import
+#curl https://keys.openpgp.org/vks/v1/by-fingerprint/A2FF3A36AAA56654109064AB19802F8B0D70FC30 | gpg --import
 cat << EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -38,4 +38,5 @@ opmol4iQla74OApQ9CP3mnjgHWcRUTacAB8L
 =aIqj
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
-echo "y\ny\n" | gpg --command-fd 0 --expert --local-user 4A0F0C8BC709ACA4341767FB243975C8DB9656B9 --edit-key A2FF3A36AAA56654109064AB19802F8B0D70FC30  sign
+gpg --list-keys --fingerprint |grep pub -A 1|grep -Ev "pub|--"|tr -d ' ' \
+ | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust

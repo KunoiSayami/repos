@@ -61,4 +61,5 @@ UwNZfgOz9PodfqUv4riMLczMmw3nwGZO/aJg0m6uWSWk
 =7vDu
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
-echo "y\ny\n" | gpg --command-fd 0 --expert --local-user 4A0F0C8BC709ACA4341767FB243975C8DB9656B9 --edit-key CEACC9E15534EBABB82D3FA03353C9CEF108B584  sign
+gpg --list-keys --fingerprint |grep pub -A 1|grep -Ev "pub|--"|tr -d ' ' \
+ | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
