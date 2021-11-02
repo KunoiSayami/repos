@@ -72,10 +72,11 @@ else
     get_diff_list
 fi
 
-pushd $PKGBUILD_DIRECTORY_BASE || ( echo "Error, can't switch to pkgbuild directory" && exit 1 )
+pushd $PKGBUILD_DIRECTORY_BASE || ( echo -e "\033[1;33mError, can't switch to pkgbuild directory\033[0m" && exit 1 )
 
 while read FOLDER_NAME ; do
     if [ ! -d "$FOLDER_NAME" ]; then
+        echo -e "\033[0;32mSkip folder $FOLDER_NAME\033[0m"
         continue
     fi
     pushd "$FOLDER_NAME" || continue
@@ -108,14 +109,14 @@ while read FOLDER_NAME ; do
     fi
 
     hook "$FOLDER_NAME"
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo "Skip $FOLDER_NAME"
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"
     popd
 done < "$REPO_DIFF"
 
 popd
 
 if [ -z "${BUILD_ONLY+x}" ]; then
-    echo "This option is depreacted, this script isn't process repository database now"
+    echo -e "\033[1;33mThis option is depreacted, this script isn't process repository database now\033[0m"
 fi
 
 date +%s > "$PKGDEST/LASTBUILD"
