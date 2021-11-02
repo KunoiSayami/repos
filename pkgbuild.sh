@@ -14,7 +14,9 @@ cleanup() {
 	unset CONFDEST
 	unset REPO_DEST
 	rm -f "$TMPCONF"
-	rm -f "$REPO_DIFF"
+    if ! { [ $# -gt 0 ] && [ "$1" = "--diff" ]; }; then
+	    rm -f "$REPO_DIFF"
+    fi
 	unset TMPCONF
 	unset REPO_PENDING
 	unset REPO_DIFF
@@ -45,7 +47,7 @@ touch "$REPO_DIFF"
 
 function get_diff_list {
     git diff --name-only HEAD^ | while read line; do
-        if [[ $line =~ $PKGBUILD_DIRECTORY_BASE/\..* ]] && [ $line != "$PKGBUILD_DIRECTORY_BASE/.verified_repos" ]; then
+        if [[ $line =~ $PKGBUILD_DIRECTORY_BASE/\..+ ]] && [ "$line" != "$PKGBUILD_DIRECTORY_BASE/.verified_repos" ]; then
             echo "$line" | cut -d'/' -f3 >> "$REPO_DIFF"
         elif [[ $line =~ $PKGBUILD_DIRECTORY_BASE ]]; then
             echo "$line" | cut -d'/' -f2 >> "$REPO_DIFF"
