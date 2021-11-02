@@ -11,6 +11,9 @@ stages:
 build:
   stage: build
 
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+
   artifacts:
     untracked: true
     expire_in: 1 day
@@ -25,7 +28,6 @@ build:
     - pacman-key --init
     - pacman --noconfirm --needed -Sy archlinuxcn-keyring
     - pacman --noconfirm --needed -Su base-devel gnupg git yay
-    - git submodule update --init
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
@@ -39,11 +41,13 @@ build:
 post:
   stage: post
 
-  only:
-    refs:
-      - master
-    changes:
-      - repo/**/*
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        # - .gitlab-ci.yml
+        # - pkgbuild.sh
+        - repo/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_TITLE =~ /REBUILD/
 
   script:
     - if [ -n "$TARGET_HOSTS" ]; then echo "$TARGET_HOSTS" | base64 -d >> /etc/hosts; fi;
