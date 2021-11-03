@@ -1,53 +1,58 @@
 #!/usr/bin/env python3
+
+import argparse
 import asyncio
 import logging
-import os
 import re
-import sys
+from pathlib import Path
+from typing import Tuple
 
-import aiohttp
 import aiofiles
+import aiohttp
+
+
+async def check_pkg(session: aiohttp.ClientSession, num: int, pkg: str) -> Tuple[int, bool]:
+    logging.info(f'Checking {pkg}')
+    ret = await session.head(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={pkg}')
+    return num, ret.status == 200
 
 
 async def main() -> int:
-    # target_file = os.path.join(os.path.abspath(sys.argv[0].rsplit('/', maxsplit=2)[0]), '.aur.db')
+    parser = argparse.ArgumentParser(description='check-aur.py')
+    parser.add_argument('paths', metavar='sub_path', type=str, nargs='*', help='sub-path for repo root')
 
-    pkgbuild_file = None
-    if os.path.exists(s := os.path.abspath('./PKGBUILD')):
-        pkgbuild_file = s
-    elif len(sys.argv) > 1 and os.path.exists(s := os.path.join(sys.argv[1], "PKGBUILD")):
-        pkgbuild_file = s
-
-    if pkgbuild_file is None:
+    args = parser.parse_args()
+    repo_dir = Path(*args.paths)
+    pkgbuild_file = repo_dir.joinpath('PKGBUILD')
+    if not pkgbuild_file.exists():
         logging.error("Can't locate PKGBUILD file, please specify directory in arguments or chdir to folder")
         return 1
 
-    current_folder = pkgbuild_file.rsplit('/', maxsplit=1)[0]
-    async with aiofiles.open(pkgbuild_file) as fin:
-        f = await fin.read()
+    async with aiofiles.open(pkgbuild_file, 'r', encoding='utf-8') as f:
+        pkgbuild_text = await f.read()
 
-    if deps := re.search(r"makedepends=\((([^)]|\n)+)\)", f, re.M):
-        result = deps.group(1)
-    else:
+    deps_match = re.search(r"makedepends=\((?P<DEPS>([^)]|\n)+)\)", pkgbuild_text, re.M)
+    if not deps_match:
         logging.error("Can't found `makedepends' keyword, if you think this is mistake, please report issue")
         return 2
 
-    if '\n' in result:
-        result = ' '.join(map(lambda x: x.strip(), result.splitlines()))
+    deps = deps_match.group('DEPS').split()
 
-    result = result.replace('\'', '')
-    is_written = False
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
-        async with aiofiles.open(yaydep_file := os.path.join(
-                current_folder, '..', '.yaydeps', current_folder.rsplit('/', maxsplit=1)[1]), 'w') as yayfile:
-            for pkg in result.split():
-                logging.info('Checking %s', pkg)
-                ret = await session.head(f'https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h={pkg}')
-                if ret.status == 200:
-                    await yayfile.write(f'{pkg}\n')
-                    is_written = True
-    if not is_written:
-        os.remove(yaydep_file)
+        tasks = [asyncio.create_task(check_pkg(session, n, pkg)) for n, pkg in enumerate(deps)]
+        yay_dep_nums = []
+        for task in asyncio.as_completed(tasks):
+            n, r = await task
+            if r:
+                yay_dep_nums.append(n)
+
+    yaydeps_dir = repo_dir.parent.joinpath('.yaydeps')
+
+    if len(yay_dep_nums) > 0:
+        async with aiofiles.open(yaydeps_dir.joinpath(repo_dir.stem), 'w', encoding='utf-8') as f:
+            await f.write('\n'.join([*(deps[n] for n in sorted(yay_dep_nums)), '']))
+
+    return 0
 
 
 if __name__ == '__main__':
@@ -55,4 +60,3 @@ if __name__ == '__main__':
                         format='%(asctime)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s')
     loop = asyncio.get_event_loop()
     exit(loop.run_until_complete(main()))
-
