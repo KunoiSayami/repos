@@ -7,6 +7,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 cleanup() {
 	trap - SIGINT SIGTERM ERR EXIT
+    unset UNSUCCESSFUL
     unset SKIP_VERIFIED
 	unset FOLDER_NAME
 	unset PKGDEST
@@ -38,6 +39,7 @@ SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
 SKIP_VERIFIED=1
+UNSUCCESSFUL=0
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
@@ -54,8 +56,8 @@ function get_diff_list {
         fi
     done
     cp "$REPO_DIFF"  "${REPO_DIFF}_tmp"
-    sort "${REPO_DIFF}_tmp" | uniq -u > "$REPO_DIFF"
-    rm -rf "${REPO_DIFF}_tmp"
+    sort -u "${REPO_DIFF}_tmp" > "$REPO_DIFF"
+    rm -f "${REPO_DIFF}_tmp"
 }
 
 if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
@@ -75,30 +77,38 @@ if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COM
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
+    echo "Next"
 fi
 
-pushd $PKGBUILD_DIRECTORY_BASE || ( echo -e "\033[1;33mError, can't switch to pkgbuild directory\033[0m" && exit 1 )
+pushd $PKGBUILD_DIRECTORY_BASE || ( echo -e "\033[0;31mError, can't switch to pkgbuild directory\033[0m" && exit 1 )
 
-while read FOLDER_NAME ; do
+while read -r FOLDER_NAME ; do
     if [ ! -d "$FOLDER_NAME" ]; then
         echo -e "\033[0;32mSkip folder $FOLDER_NAME\033[0m"
         continue
     fi
-    pushd "$FOLDER_NAME" || continue
+    echo -e "\033[0;32mProcessing $FOLDER_NAME\033[0m"
+    pushd "$FOLDER_NAME" || { echo -e "\033[1;33mWarning, can't chdir to $FOLDER_NAME, skipped\033[0m"; continue; }
+
+    # hook must run before other checker
+    hook "$FOLDER_NAME"
+
     # Check PKGBUILD architecture
     if ! ( pcregrep -M 'arch=\([^\)]*\)' PKGBUILD | grep -E "$ARCH|any" >/dev/null ); then
+        echo -e "\033[0;32mSkip folder $FOLDER_NAME (Architecture not match)\033[0m"
         popd
         continue
     fi
 
     if [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]] && \
         [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
+        echo -e "\033[0;32mSkip folder $FOLDER_NAME (verified repository)\033[0m"
         popd
         continue
     fi
 
     if [ -r ../.yaydeps/"$FOLDER_NAME" ]; then
-        while read YAYDEP ; do
+        while read -r YAYDEP ; do
             if [ -d "../$YAYDEP" ]; then
                 pushd "../$YAYDEP"
                 hook "$YAYDEP"
@@ -116,16 +126,19 @@ while read FOLDER_NAME ; do
         | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
     fi
 
-    hook "$FOLDER_NAME"
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || { echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"; UNSUCCESSFUL=1; }
     popd
 done < "$REPO_DIFF"
 
 popd
 
-if [ -z "${BUILD_ONLY+x}" ]; then
-    echo -e "\033[1;33mThis option is depreacted, this script isn't process repository database now\033[0m"
-fi
-
 date +%s > "$PKGDEST/LASTBUILD"
 
+if [ $UNSUCCESSFUL -eq 1 ]; then
+    if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_DEFAULT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        touch .fail
+    else
+        echo -e "\033[0;31mExit due makepkg failed\033[0m"
+        exit 2
+    fi
+fi

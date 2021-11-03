@@ -28,3 +28,6 @@ popd
 
 curl -d "token=$UPLOAD_TOKEN&action=UPLOADED&arch=$ARCH" -fsSL "$REMOTE_PATH"
 
+if [ -r .fail ]; then
+	exit 2;
+fi
