@@ -1,7 +1,7 @@
 #!/bin/bash
 #gpg --recv-keys --keyserver pgp.mit.edu 3353C9CEF108B584
 #curl https://keys.openpgp.org/vks/v1/by-fingerprint/CEACC9E15534EBABB82D3FA03353C9CEF108B584 | gpg --import
-cat <<EOF | gpg --import
+cat << EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQENBFJhQQ8BCAChk4A3y0VfqeGfuhBZK4nvpZP/cSIQntWDheF3Tx7m9CxEGbc+

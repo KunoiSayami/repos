@@ -9,10 +9,10 @@ if [ $# -eq 0 ]; then
 fi
 
 if [ -z ${SSH_CLIENT+x} ]; then
-    ADDITIONAL_PARAM="-Pv"
+    ADDITIONAL_PARAM="--partial"
 else
-    ADDITIONAL_PARAM=""
+    ADDITIONAL_PARAM="-Pv"
 fi
 
 /usr/bin/date +%s > "packages/LASTSYNC"
-/usr/bin/rsync --partial $ADDITIONAL_PARAM -r -c --update --links --delete --exclude=.gitignore "packages/" $1:/var/www/repo/
+/usr/bin/rsync $ADDITIONAL_PARAM -r -c --update --links --delete --exclude=.gitignore "packages/" $1:/var/www/repo/
