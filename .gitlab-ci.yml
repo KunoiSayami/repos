@@ -32,7 +32,7 @@ build:
     - pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
     - pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
     #- pacman --noconfirm --needed -Sy archlinuxcn-keyring
-    - pacman --noconfirm --needed -Su base-devel gnupg git
+    - pacman --noconfirm --needed -Su base-devel gnupg git yay
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
