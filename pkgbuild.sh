@@ -63,6 +63,11 @@ if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
     exit 0
 fi
 
+if [ "$EUID" -eq 0 ] ; then
+    echo "\033[0;32mPlease run this script as non-root\033[0m"
+    exit 3
+fi
+
 if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]]; then
     if [ -z "${FORCE_ALL+x}" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ REBUILD(\ |_)ALL ]]; then
         SKIP_VERIFIED=0
@@ -86,7 +91,8 @@ while read FOLDER_NAME ; do
         continue
     fi
 
-    if [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
+    if [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]] && \
+        [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
         popd
         continue
     fi
@@ -106,6 +112,8 @@ while read FOLDER_NAME ; do
 
     if [ -r ../.gpg_keys/"$FOLDER_NAME" ]; then
         . ../.gpg_keys/"$FOLDER_NAME"
+        gpg --list-keys --fingerprint |grep pub -A 1|grep -Ev "pub|--"|tr -d ' ' \
+        | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
     fi
 
     hook "$FOLDER_NAME"

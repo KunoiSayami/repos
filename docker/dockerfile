@@ -1,6 +1,6 @@
 FROM repobuildbase:latest
 
-RUN echo -e "\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$$arch\n" >> /etc/pacman.conf
+RUN echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch\n' >> /etc/pacman.conf
 
 RUN pacman-key --init
 

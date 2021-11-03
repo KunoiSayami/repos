@@ -38,5 +38,3 @@ opmol4iQla74OApQ9CP3mnjgHWcRUTacAB8L
 =aIqj
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
-gpg --list-keys --fingerprint |grep pub -A 1|grep -Ev "pub|--"|tr -d ' ' \
- | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust

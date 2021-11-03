@@ -3,3 +3,6 @@ telegram-bot-api
 r8125-dkms
 pam_ssh_agent_auth_patched
 mozjpeg
+linux-zen-x86-64-v3
+glib2-static
+qemu-user-static
