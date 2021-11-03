@@ -10,3 +10,6 @@
 [submodule "repo/vlc-luajit"]
 	path = repo/vlc-luajit
 	url = https://aur.archlinux.org/vlc-luajit.git
+[submodule "repo/yay"]
+	path = repo/yay
+	url = https://aur.archlinux.org/yay.git
