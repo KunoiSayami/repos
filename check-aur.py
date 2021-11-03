@@ -52,7 +52,7 @@ async def main() -> int:
         async with aiofiles.open(yaydeps_dir.joinpath(repo_dir.stem), 'w', encoding='utf-8') as f:
             await f.write('\n'.join([*(deps[n] for n in sorted(yay_dep_nums)), '']))
 
-    return 1
+    return 0
 
 
 if __name__ == '__main__':
