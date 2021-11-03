@@ -7,3 +7,6 @@
 [submodule "repo/obs-studio-browser"]
 	path = repo/obs-studio-browser
 	url = https://aur.archlinux.org/obs-studio-browser.git
+[submodule "repo/vlc-luajit"]
+	path = repo/vlc-luajit
+	url = https://aur.archlinux.org/vlc-luajit.git

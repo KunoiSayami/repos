@@ -16,7 +16,7 @@ build:
 
   artifacts:
     untracked: true
-    expire_in: 1 day
+    expire_in: 4 hours
   only:
     changes:
       - .gitlab-ci.yml
