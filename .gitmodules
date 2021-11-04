@@ -13,3 +13,12 @@
 [submodule "repo/yay"]
 	path = repo/yay
 	url = https://aur.archlinux.org/yay.git
+[submodule "repo/chisel"]
+	path = repo/chisel
+	url = https://aur.archlinux.org/chisel.git
+[submodule "repo/r8125-dkms"]
+	path = repo/r8125-dkms
+	url = https://aur.archlinux.org/r8125-dkms.git
+[submodule "repo/mozjpeg"]
+	path = repo/mozjpeg
+	url = https://aur.archlinux.org/mozjpeg.git
