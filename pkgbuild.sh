@@ -122,7 +122,8 @@ while read -r FOLDER_NAME ; do
 
     if [ -r ../.gpg_keys/"$FOLDER_NAME" ]; then
         . ../.gpg_keys/"$FOLDER_NAME"
-        gpg --list-keys --fingerprint |grep pub -A 1|grep -Ev "pub|--"|tr -d ' ' \
+        # source: https://stackoverflow.com/a/53886735
+        gpg --list-keys --fingerprint | grep pub -A 1 | grep -Ev "pub|--" | tr -d ' ' \
         | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
     fi
 
