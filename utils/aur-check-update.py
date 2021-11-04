@@ -97,11 +97,17 @@ async def main() -> int:
             os.chdir(item)
             version = await Version.from_file('PKGBUILD')
             async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={item}') as response:
+                if response.status != 200:
+                    logging.info('%s not register in AUR', item)
+                    os.chdir('..')
+                    continue
                 new_version = Version.from_str(await response.text())
             if new_version == version:
+                os.chdir('..')
                 continue
             elif new_version < version:
                 logging.warning('Warning: %s is newer than AUR', version)
+                os.chdir('..')
                 continue
             if '.git' in os.listdir():
                 if not dry_run:
@@ -109,6 +115,7 @@ async def main() -> int:
                 logging.info('Upgrade %s from %s to %s', item, version, new_version)
             else:
                 logging.info('Found update %s(%s) (local: %s)', item, new_version, version)
+            os.chdir('..')
     return 0
 
 if __name__ == '__main__':
