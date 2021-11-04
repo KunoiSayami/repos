@@ -25,3 +25,6 @@
 [submodule "repo/wget2"]
 	path = repo/wget2
 	url = https://aur.archlinux.org/wget2.git
+[submodule "repo/pod2man"]
+	path = repo/pod2man
+	url = https://aur.archlinux.org/pod2man.git
