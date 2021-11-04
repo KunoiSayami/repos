@@ -22,3 +22,6 @@
 [submodule "repo/mozjpeg"]
 	path = repo/mozjpeg
 	url = https://aur.archlinux.org/mozjpeg.git
+[submodule "repo/wget2"]
+	path = repo/wget2
+	url = https://aur.archlinux.org/wget2.git
