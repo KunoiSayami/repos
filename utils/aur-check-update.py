@@ -17,16 +17,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 from __future__ import annotations
+
+import argparse
 import asyncio
 import logging
-import os
 import re
-import sys
 
+from collections.abc import Coroutine
 from dataclasses import dataclass
+from pathlib import Path
 
 import aiofiles
 import aiohttp
+
+MAX_WORKERS = 32
 
 
 @dataclass
@@ -55,21 +59,19 @@ class Version:
         return cls(pkgver, pkgrel, epoch)
 
     @classmethod
-    async def from_file(cls, file: str) -> Version:
-        async with aiofiles.open(file) as fin:
+    async def from_file(cls, file: str | Path) -> Version:
+        async with aiofiles.open(file, 'r', encoding='utf-8') as fin:
             return cls.from_str(await fin.read())
 
     def __eq__(self, other: Version) -> bool:
-        return all((self.epoch == other.epoch, self.pkgver == self.pkgver, self.pkgrel == other.pkgrel))
+        return self.epoch == other.epoch \
+               and self.pkgver == self.pkgver \
+               and self.pkgrel == other.pkgrel
 
     def __gt__(self, other: Version) -> bool:
-        if self.epoch > other.epoch:
-            return True
-        if self.pkgver > other.pkgver:
-            return True
-        if self.pkgver == other.pkgver and self.pkgrel > other.pkgrel:
-            return True
-        return False
+        return self.epoch > other.epoch \
+               or self.pkgver > other.pkgver \
+               or (self.pkgver == other.pkgver and self.pkgrel > other.pkgrel)
 
     def __ne__(self, other: Version) -> bool:
         return not self.__eq__(other)
@@ -85,43 +87,64 @@ class Version:
         return f'{prefix}{self.pkgver}-{self.pkgrel}'
 
 
-async def main() -> int:
-    dry_run = '--dry' in sys.argv
-    os.chdir(sys.argv[1])
+async def with_sem(sem: asyncio.Semaphore, coro: Coroutine):
+    async with sem:
+        return await coro
+
+
+async def aur_check_update(item: Path, dry_run: bool) -> None:
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
-        for item in os.listdir():
-            if item.startswith('.'):
-                continue
-            if not os.path.isdir(item):
-                continue
-            os.chdir(item)
-            version = await Version.from_file('PKGBUILD')
-            async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={item}') as response:
-                if response.status != 200:
-                    logging.info('%s not register in AUR', item)
-                    os.chdir('..')
-                    continue
-                new_version = Version.from_str(await response.text())
-            if new_version == version:
-                os.chdir('..')
-                continue
-            elif new_version < version:
-                logging.warning('Warning: %s is newer than AUR', version)
-                os.chdir('..')
-                continue
-            if '.git' in os.listdir():
-                if not dry_run:
-                    await asyncio.create_subprocess_exec('git', 'pull')
-                logging.info('Upgrade %s from %s to %s', item, version, new_version)
-            else:
-                logging.info('Found update %s(%s) (local: %s)', item, new_version, version)
-            os.chdir('..')
+        if item.name.startswith('.') or not item.is_dir():
+            return
+        pkgbuild_file = item.joinpath('PKGBUILD')
+        if not pkgbuild_file.exists():
+            logging.warning(f'PKGBUILD not in {str(item)}, SKIP!')
+            return
+        version = await Version.from_file(pkgbuild_file)
+        async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={item.name}') as resp:
+            if resp.status != 200:
+                logging.info(f'{item.name} not register in AUR')
+                return
+            new_version = Version.from_str(await resp.text())
+
+        if new_version == version:
+            return
+        elif new_version < version:
+            logging.warning(f'Warning: {version} is newer than AUR')
+            return
+        if item.joinpath('.git').exists():
+            if not dry_run:
+                await asyncio.create_subprocess_exec('git', '-C', f'{str(item)}', 'pull')
+            logging.info(f'Upgrade {item.name} from {version} to {new_version}')
+        else:
+            logging.info(f'Found update {item.name}({version}) (local: {new_version})')
+
+
+async def main() -> int:
+    parser = argparse.ArgumentParser(description='aur-check-update.py')
+    parser.add_argument('--dry', help='dry run', action='store_true')
+    parser.add_argument('--max-workers', dest='workers', metavar='MAX_WORKERS',
+                        help=f'aur check max workers, default: {MAX_WORKERS}',
+                        default=MAX_WORKERS, action='store', type=int)
+    parser.add_argument(dest='repo_dir', metavar='REPO_DIR', help='repository directory', nargs='?')
+
+    args = parser.parse_args()
+
+    dry_run = args.dry
+    sem = asyncio.Semaphore(args.workers)
+
+    if args.repo_dir is None:
+        logging.error('repository directory not found')
+        return 1
+
+    repo_dir = Path(args.repo_dir)
+
+    tasks = [asyncio.create_task(with_sem(sem, aur_check_update(item, dry_run))) for item in repo_dir.iterdir()]
+    await asyncio.gather(*tasks)
+
     return 0
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        print('Usage:', sys.argv[0], '<repository directory>')
-        exit(1)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s')
     loop = asyncio.get_event_loop()
