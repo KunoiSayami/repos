@@ -92,32 +92,31 @@ async def with_sem(sem: asyncio.Semaphore, coro: Coroutine):
         return await coro
 
 
-async def aur_check_update(item: Path, dry_run: bool) -> None:
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
-        if item.name.startswith('.') or not item.is_dir():
+async def aur_check_update(session: aiohttp.ClientSession, item: Path, dry_run: bool) -> None:
+    if item.name.startswith('.') or not item.is_dir():
+        return
+    pkgbuild_file = item.joinpath('PKGBUILD')
+    if not pkgbuild_file.exists():
+        logging.warning(f'PKGBUILD not in {str(item)}, SKIP!')
+        return
+    version = await Version.from_file(pkgbuild_file)
+    async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={item.name}') as resp:
+        if resp.status != 200:
+            logging.info(f'{item.name} not register in AUR')
             return
-        pkgbuild_file = item.joinpath('PKGBUILD')
-        if not pkgbuild_file.exists():
-            logging.warning(f'PKGBUILD not in {str(item)}, SKIP!')
-            return
-        version = await Version.from_file(pkgbuild_file)
-        async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={item.name}') as resp:
-            if resp.status != 200:
-                logging.info(f'{item.name} not register in AUR')
-                return
-            new_version = Version.from_str(await resp.text())
+        new_version = Version.from_str(await resp.text())
 
-        if new_version == version:
-            return
-        elif new_version < version:
-            logging.warning(f'Warning: {version} is newer than AUR')
-            return
-        if item.joinpath('.git').exists():
-            if not dry_run:
-                await asyncio.create_subprocess_exec('git', '-C', f'{str(item)}', 'pull')
-            logging.info(f'Upgrade {item.name} from {version} to {new_version}')
-        else:
-            logging.info(f'Found update {item.name}({version}) (local: {new_version})')
+    if new_version == version:
+        return
+    elif new_version < version:
+        logging.warning(f'Warning: {version} is newer than AUR')
+        return
+    if item.joinpath('.git').exists():
+        if not dry_run:
+            await asyncio.create_subprocess_exec('git', '-C', f'{str(item)}', 'pull')
+        logging.info(f'Upgrade {item.name} from {version} to {new_version}')
+    else:
+        logging.info(f'Found update {item.name}({version}) (local: {new_version})')
 
 
 async def main() -> int:
@@ -139,8 +138,11 @@ async def main() -> int:
 
     repo_dir = Path(args.repo_dir)
 
-    tasks = [asyncio.create_task(with_sem(sem, aur_check_update(item, dry_run))) for item in repo_dir.iterdir()]
-    await asyncio.gather(*tasks)
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
+        tasks = [asyncio.create_task(
+            with_sem(sem, aur_check_update(session, item, dry_run))
+        ) for item in repo_dir.iterdir()]
+        await asyncio.gather(*tasks)
 
     return 0
 
