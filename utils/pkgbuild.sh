@@ -7,6 +7,7 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 cleanup() {
 	trap - SIGINT SIGTERM ERR EXIT
+    unset SIGNING_ARG
     unset UNSUCCESSFUL
     unset SKIP_VERIFIED
 	unset FOLDER_NAME
@@ -40,6 +41,7 @@ CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
 REPO_DIFF="${PWD}/packages/$ARCH/DIFF"
 SKIP_VERIFIED=1
 UNSUCCESSFUL=0
+SIGNING_ARG=""
 
 TMPCONF=$(mktemp -t makepkg.$ARCH.conf.XXXXXXXXXX) || exit 1
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
@@ -77,7 +79,12 @@ if [ $# -gt 0 ] && [ "$1" = "--all" ] || [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COM
     ls $PKGBUILD_DIRECTORY_BASE > "$REPO_DIFF"
 else
     get_diff_list
-    echo "Next"
+fi
+
+if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_DEFAULT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+    SIGNING_ARG="-s"
+else
+    echo -e "\033[0;32mSkip signing package\033[0m"
 fi
 
 pushd $PKGBUILD_DIRECTORY_BASE || ( echo -e "\033[0;31mError, can't switch to pkgbuild directory\033[0m" && exit 1 )
@@ -112,7 +119,7 @@ while read -r FOLDER_NAME ; do
             if [ -d "../$YAYDEP" ]; then
                 pushd "../$YAYDEP"
                 hook "$YAYDEP"
-                SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -si --asdeps --noconfirm --needed --noprogressbar
+                SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -i $SIGNING_ARG --asdeps --noconfirm --needed --noprogressbar
                 popd
             else
                 yay -S --noconfirm --needed --asdeps "$YAYDEP"
@@ -127,7 +134,7 @@ while read -r FOLDER_NAME ; do
         | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
     fi
 
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean -s --asdeps --noconfirm --needed --noprogressbar || { echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"; UNSUCCESSFUL=1; }
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg --clean $SIGNING_ARG --asdeps --noconfirm --needed --noprogressbar || { echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"; UNSUCCESSFUL=1; }
     popd
 done < "$REPO_DIFF"
 

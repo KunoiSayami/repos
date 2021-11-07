@@ -14,6 +14,11 @@ cleanup() {
 ARCH=$(uname -m)
 PKGDEST="${PWD}/packages/$ARCH"
 
+if [ $(find $PKGDEST -name \*.pkg\* | wc -l) -eq 0 ]; then
+	echo -e "\033[0;31mCould not find any packaged packages, skip upload\033[0m"
+	exit 0
+fi
+
 curl -d "token=$UPLOAD_TOKEN&action=REQUIRE_CLEAN&arch=$ARCH" -fsSL "$REMOTE_PATH"
 
 pushd $PKGDEST
