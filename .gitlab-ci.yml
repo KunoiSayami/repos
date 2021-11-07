@@ -38,7 +38,7 @@ build:
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
     #- cd /home/build/$CI_PROJECT_TITLE
     - chown -R build:build ../$CI_PROJECT_TITLE
-    - su -c 'echo $GPG_PRIV_KEY | base64 -d | gpg --import' build
+    - su -c './utils/pkgbuild.sh --import-gpg' build
     - su -c './utils/pkgbuild.sh' build
     - rm -rf build/
 

@@ -62,9 +62,18 @@ function get_diff_list {
     rm -f "${REPO_DIFF}_tmp"
 }
 
-if [ $# -gt 0 ] && [ "$1" = "--diff" ]; then
-    get_diff_list
-    exit 0
+if [ $# -gt 0 ];then
+    if [ "$1" = "--diff" ]; then
+        get_diff_list
+        exit 0
+    elif [ "$1" = "--import-gpg" ]; then
+        if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_DEFAULT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+            echo $GPG_PRIV_KEY | base64 -d | gpg --import
+        else
+            echo -e "\033[0;32mSkip import gpg key\033[0m"
+        fi
+        exit 0
+    fi
 fi
 
 if [ "$EUID" -eq 0 ] ; then
