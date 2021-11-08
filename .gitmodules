@@ -34,3 +34,6 @@
 [submodule "repo/rime-lua-hook-git"]
 	path = repo/rime-lua-hook-git
 	url = https://aur.archlinux.org/rime-lua-hook-git.git
+[submodule "repo/konsole-dracula-git"]
+	path = repo/konsole-dracula-git
+	url = https://aur.archlinux.org/konsole-dracula-git.git

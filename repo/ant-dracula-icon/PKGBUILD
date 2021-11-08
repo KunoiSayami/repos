@@ -1,0 +1,15 @@
+# Maintainer: cubercsl <2014cais01 at gmail dot com>
+pkgname=ant-dracula-icon-theme
+pkgver=1
+pkgrel=1
+pkgdesc="Dracula theme icon"
+arch=("any")
+url="https://draculatheme.com/gtk/"
+license=("GPL")
+source=("https://github.com/dracula/gtk/files/5214870/Dracula.zip")
+sha256sums=('33ad2819efb4fe5f612e32cb3959772c1a475608ef054e237d27278ec30bccb6')
+
+package() {
+    install -dm755 "${pkgdir}/usr/share/icons/Dracula"
+    cp -r "${srcdir}"/Dracula/* "${pkgdir}/usr/share/icons/Dracula/"
+}
