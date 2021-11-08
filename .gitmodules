@@ -28,3 +28,9 @@
 [submodule "repo/pod2man"]
 	path = repo/pod2man
 	url = https://aur.archlinux.org/pod2man.git
+[submodule "repo/rime-flypy"]
+	path = repo/rime-flypy
+	url = https://aur.archlinux.org/rime-flypy.git
+[submodule "repo/rime-lua-hook-git"]
+	path = repo/rime-lua-hook-git
+	url = https://aur.archlinux.org/rime-lua-hook-git.git
