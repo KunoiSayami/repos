@@ -2,7 +2,9 @@ FROM repobuildbase:latest
 
 ARG REMOTE_ADDRESS
 
-RUN echo -e '\n[kunoisayami]\nServer = ${REMOTE_ADDRESS}\n' >> /etc/pacman.conf
+RUN echo -n -e '\n[kunoisayami]\nServer = ' >> /etc/pacman.conf
+
+RUN echo ${REMOTE_ADDRESS} >> /etc/pacman.conf
 
 RUN pacman-key --init
 
