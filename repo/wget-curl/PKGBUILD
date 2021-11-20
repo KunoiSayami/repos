@@ -2,7 +2,7 @@
 
 pkgname=wget-curl
 pkgver=0.0.1
-pkgrel=2
+pkgrel=3
 pkgdesc='This package provides wget api using curl wrap'
 arch=('any')
 url=https://git.arnef.de/LineageOS/vendor_lineage/src/commit/d91ddb53a86f64d86cccad560122dbee38232c90/prebuilt/common/bin/wget
@@ -15,14 +15,11 @@ provides=('wget')
 conflicts=('wget')
 
 build () {
-    cd "$srcdir/"
-
+    sed -i 's|#!/system/bin/sh|#!/bin/bash|' wget
     sed -n '/Copyright/,/ OF THIS SOFTWARE./p' wget | sed "s/# *//" > LICENSE
 }
 
 package() {
-    cd "$srcdir/"
-
     install -dm755 "$pkgdir"/usr/share/wget/
     install -dm755 "$pkgdir"/usr/share/license/wget
     install -dm755 "$pkgdir"/usr/bin
