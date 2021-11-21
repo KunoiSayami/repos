@@ -14,5 +14,5 @@ blue="${bold}$(tput setaf 4)"
 yellow="${bold}$(tput setaf 3)"
 
 post_install() {
-    note "Run \`echo \"[ -r /etc/zsh/ssr/ssr-zshrc.zsh ] && source /etc/zsh/ssr/ssr-zshrc.zsh\" > ~/.zshrc\` to joy it"
+    note "Run \`echo \"[ -r /etc/zsh/ssr/zshrc.zsh ] && source /etc/zsh/ssr/zshrc.zsh\" > ~/.zshrc\` to joy it"
 }

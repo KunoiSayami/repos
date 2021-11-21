@@ -2,12 +2,12 @@
 
 pkgname=zsh-ssr-theme
 pkgver=0.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="This package provides ssr's zsh theme"
 arch=('any')
 url=https://github.com/KunoiSayami/dotfiles/
 source=(
-    ssr-zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/4a8c1ae3b9bb07dff075ac369bf9f90d28861263/.zshrc
+    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/4a8c1ae3b9bb07dff075ac369bf9f90d28861263/.zshrc
     https://gist.githubusercontent.com/KunoiSayami/6e4177ef13a4f8df0cbf3731b68e013c/raw/8ff98306c08ef9133f5125b5f9a8b67698a66a04/p10k.zsh)
 sha512sums=(
     '0abc1a1b9e886a21e26c01df9f909b3e6fc7caf9b73713ca0d0547e8c37e8d665f5546f5049fa2e2d459675ae73d9362fbbed725318ad9c2851dbb7141472d4e'
@@ -21,10 +21,10 @@ provides=('zsh-ssr-theme')
 install=$pkgname.install
 
 package() {
-    sed -i 's|~/.config/zsh/p10k|/etc/zsh/ssr/p10k|' ssr-zshrc.zsh
+    sed -i 's|~/.config/zsh/p10k|/etc/zsh/ssr/p10k|g' ssr-zshrc.zsh
 
     install -dm755 "$pkgdir"/etc/zsh/ssr/
 
-    install -m644 ssr-zshrc.zsh "$pkgdir"/etc/zsh/ssr/
+    install -m644 zshrc.zsh "$pkgdir"/etc/zsh/ssr/
     install -m644 p10k.zsh "$pkgdir"/etc/zsh/ssr/
 }
