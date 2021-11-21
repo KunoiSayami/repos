@@ -2,7 +2,7 @@
 
 pkgname=zsh-ssr-theme
 pkgver=0.0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="This package provides ssr's zsh theme"
 arch=('any')
 url=https://github.com/KunoiSayami/dotfiles/
@@ -21,7 +21,7 @@ provides=('zsh-ssr-theme')
 install=$pkgname.install
 
 package() {
-    sed -i 's|~/.config/zsh/p10k|/etc/zsh/ssr/p10k|g' ssr-zshrc.zsh
+    sed -i 's|~/.config/zsh/p10k|/etc/zsh/ssr/p10k|g' zshrc.zsh
 
     install -dm755 "$pkgdir"/etc/zsh/ssr/
 
