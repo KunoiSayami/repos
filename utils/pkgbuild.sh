@@ -152,7 +152,7 @@ popd
 date +%s > "$PKGDEST/LASTBUILD"
 
 if [ $UNSUCCESSFUL -eq 1 ]; then
-    if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_DEFAULT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+    if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
     else
         echo -e "\033[0;31mExit due makepkg failed\033[0m"

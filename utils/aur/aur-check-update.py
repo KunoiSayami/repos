@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2021 KunoiSayami
+# Copyright (C) 2021 KunoiSayami and contributors
 #
 # This module is part of KunoiSayami/repos and is released under
 # the AGPL v3 License: https://www.gnu.org/licenses/agpl-3.0.txt
