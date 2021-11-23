@@ -37,3 +37,6 @@
 [submodule "repo/konsole-dracula-git"]
 	path = repo/konsole-dracula-git
 	url = https://aur.archlinux.org/konsole-dracula-git.git
+[submodule "repo/gtk3-classic"]
+	path = repo/gtk3-classic
+	url = https://aur.archlinux.org/gtk3-classic.git
