@@ -22,6 +22,7 @@ build:
       - .gitlab-ci.yml
       - pkgbuild.sh
       - repo/**/*
+      - makepkg.d/*
 
   script:
     #- echo -e '\n[archlinuxcn]\nServer = https://repo.archlinuxcn.org/$arch\n' >> /etc/pacman.conf
