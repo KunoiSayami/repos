@@ -1,0 +1,3 @@
+#!/bin/bash
+echo '' | sudo tee /etc/pacman.conf >/dev/null
+echo 'W211bHRpbGliXQpJbmNsdWRlID0gL2V0Yy9wYWNtYW4uZC9taXJyb3JsaXN0Cgo=' | base64 -d | sudo tee /etc/pacman.conf
