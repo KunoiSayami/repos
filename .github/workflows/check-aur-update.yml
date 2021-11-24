@@ -2,7 +2,7 @@ name: Check aur updates
 
 on:
   schedule:
-    - cron: '13 * * * *'
+    - cron: '19,49 * * * *'
 
 jobs:
   check-update:
