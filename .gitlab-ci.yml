@@ -20,7 +20,7 @@ build:
   only:
     changes:
       - .gitlab-ci.yml
-      - pkgbuild.sh
+      - utils/pkgbuild.sh
       - repo/**/*
       - makepkg.d/*
 
@@ -32,7 +32,6 @@ build:
     - curl -fL https://keys.openpgp.org/vks/v1/by-fingerprint/4A0F0C8BC709ACA4341767FB243975C8DB9656B9 | pacman-key --add -
     - pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
     - pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
-    #- pacman --noconfirm --needed -Sy archlinuxcn-keyring
     - pacman --noconfirm --needed -Syu base-devel gnupg git yay
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
