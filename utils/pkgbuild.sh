@@ -144,6 +144,7 @@ while read -r FOLDER_NAME ; do
     fi
 
     SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg -s --clean $SIGNING_ARG --asdeps --noconfirm --needed --noprogressbar || { echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"; UNSUCCESSFUL=1; }
+    rm -r "$SRCDEST"
     popd
 done < "$REPO_DIFF"
 
@@ -152,6 +153,7 @@ popd
 date +%s > "$PKGDEST/LASTBUILD"
 
 if [ $UNSUCCESSFUL -eq 1 ]; then
+    rm -r "$SRCDEST"
     if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
     else
