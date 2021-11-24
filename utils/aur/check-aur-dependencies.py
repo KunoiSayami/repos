@@ -18,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 import argparse
 import asyncio
+import heapq
 import logging
 import re
 from pathlib import Path
@@ -34,7 +35,7 @@ async def check_pkg(session: aiohttp.ClientSession, num: int, pkg: str) -> Tuple
 
 
 async def main() -> int:
-    parser = argparse.ArgumentParser(description='check-aur.py')
+    parser = argparse.ArgumentParser(description='check-aur-dependencies.py')
     parser.add_argument('paths', metavar='sub_path', type=str, nargs='*', help='sub-path for repo root')
 
     args = parser.parse_args()
@@ -60,13 +61,13 @@ async def main() -> int:
         for task in asyncio.as_completed(tasks):
             n, r = await task
             if r:
-                yay_dep_nums.append(n)
+                heapq.heappush(yay_dep_nums, n)
 
     yaydeps_dir = repo_dir.parent.joinpath('.yaydeps')
 
     if len(yay_dep_nums) > 0:
         async with aiofiles.open(yaydeps_dir.joinpath(repo_dir.stem), 'w', encoding='utf-8') as f:
-            await f.write('\n'.join([*(deps[n] for n in sorted(yay_dep_nums)), '']))
+            await f.write('\n'.join([*(deps[heapq.heappop(yay_dep_nums)] for _ in range(len(yay_dep_nums))), '']))
 
     return 0
 
@@ -74,5 +75,4 @@ async def main() -> int:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s')
-    loop = asyncio.get_event_loop()
-    exit(loop.run_until_complete(main()))
+    exit(asyncio.run(main()))
