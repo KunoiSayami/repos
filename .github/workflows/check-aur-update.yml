@@ -1,0 +1,40 @@
+name: Check aur updates
+
+on:
+  schedule:
+    - cron: '13 * * * *'
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    name: Build
+    runs-on: ${{ matrix.job.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+      - name: Install requirements
+        shell: bash
+        run: |
+          python3 -m pip install -U -r utils/aur/requirements.txt
+      - name: Check updates
+        shell: bash
+        run: |
+          ./utils/aur/aur-check-update.py repo
+      - id: get_env
+        shell: bash
+        run: |
+          echo "::set-output name=date::$(date +%Y%m%d%H%M)"
+          echo "::set-output name=body::$(git diff --name-only | sed -e 's|^repo/|* |')"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: 'Auto update aur repository ${{ steps.get_env.outputs.date }}'
+          title: Update aur repository
+          delete-branch: true
+          branch: update/aur-${{ steps.get_env.outputs.date }}
+          body: "Update packages:\n${{ steps.get_env.outputs.body }}"
