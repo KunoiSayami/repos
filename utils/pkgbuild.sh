@@ -143,8 +143,16 @@ while read -r FOLDER_NAME ; do
         | awk 'BEGIN { FS = "\n" } ; { print $1":6:" } ' | gpg --import-ownertrust
     fi
 
-    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg -s --clean $SIGNING_ARG --asdeps --noconfirm --needed --noprogressbar || { echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m"; UNSUCCESSFUL=1; }
-    rm -r "$SRCDEST"
+    SRCPKGDEST=$SRCDEST SRCDEST=$SRCDEST PKGDEST=$PKGDEST MAKEPKG_CONF="$TMPCONF" makepkg -s --clean $SIGNING_ARG --asdeps --noconfirm --needed --noprogressbar || {
+        LAST_STATUS=$?;
+        if [ $LAST_STATUS -eq 13 ]; then
+            echo -e "\033[0;32mSkip folder that package already build $FOLDER_NAME\033[0m";
+            continue
+        fi
+        echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m";
+        UNSUCCESSFUL=1;
+    }
+    rm -r "$SRCDEST" || true
     popd
 done < "$REPO_DIFF"
 
@@ -153,7 +161,7 @@ popd
 date +%s > "$PKGDEST/LASTBUILD"
 
 if [ $UNSUCCESSFUL -eq 1 ]; then
-    rm -r "$SRCDEST"
+    rm -r "$SRCDEST" || true
     if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
     else

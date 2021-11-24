@@ -31,15 +31,11 @@ else
 
     echo $GPG_PRIV_KEY | base64 -d | gpg --import
 
-    pushd repo/pod2man
-    makepkg -i -s --noconfirm --needed
-    popd
-
     ./utils/pkgbuild.sh
 
     ./utils/ci-upload.sh
 
 fi
 
-popd repos
+popd
 
