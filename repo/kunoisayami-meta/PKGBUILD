@@ -1,0 +1,8 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+
+pkgname=kunoisayami-meta
+pkgver=1
+pkgrel=1
+pkgdesc="This package provides kunoisayami tools"
+arch=('any')
+depends=('python' 'python-pip' 'python-wheel' 'python-setuptools' 'tmux' 'neofetch' 'htop')
