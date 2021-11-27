@@ -24,7 +24,8 @@ jobs:
         shell: bash
         run: |
           ./utils/aur/aur-check-update.py repo
-      - id: get_env
+      - name: Set environments
+        id: get_env
         shell: bash
         run: |
           echo "::set-output name=date::$(date +%Y%m%d%H%M)"
