@@ -152,7 +152,7 @@ while read -r FOLDER_NAME ; do
         echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m";
         UNSUCCESSFUL=1;
     }
-    rm -r "$SRCDEST" || true
+    [ -d "$SRCDEST" ] && rm -r "$SRCDEST"
     popd
 done < "$REPO_DIFF"
 
@@ -161,7 +161,7 @@ popd
 date +%s > "$PKGDEST/LASTBUILD"
 
 if [ $UNSUCCESSFUL -eq 1 ]; then
-    rm -r "$SRCDEST" || true
+    [ -d "$SRCDEST" ] && rm -r "$SRCDEST"
     if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
     else
