@@ -149,7 +149,7 @@ while read -r FOLDER_NAME ; do
             echo -e "\033[0;32mSkip folder that package already build $FOLDER_NAME\033[0m";
             continue
         fi
-        echo -e "\033[0;31mSkip folder $FOLDER_NAME\033[0m";
+        echo -e "\033[0;31mSkip folder $FOLDER_NAME. Build fail: $LAST_STATUS\033[0m";
         UNSUCCESSFUL=1;
     }
     [ -d "$SRCDEST" ] && rm -r "$SRCDEST"
@@ -164,6 +164,7 @@ if [ $UNSUCCESSFUL -eq 1 ]; then
     [ -d "$SRCDEST" ] && rm -r "$SRCDEST"
     if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
+        echo -e "\033[0;31mCreate fail flag because \$UNSUCCESSFUL set to 1\033[0m"
     else
         echo -e "\033[0;31mExit due makepkg failed\033[0m"
         exit 2
