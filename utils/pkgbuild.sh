@@ -19,6 +19,7 @@ cleanup() {
     if ! { [ $# -gt 0 ] && [ "$1" = "--diff" ]; }; then
 	    rm -f "$REPO_DIFF"
     fi
+    [ -r "$FAIL_REPOS" ] && rm -f "$FAIL_REPOS"
 	unset TMPCONF
 	unset REPO_PENDING
 	unset REPO_DIFF
@@ -35,6 +36,7 @@ function hook {
 
 ARCH=$(uname -m)
 PKGBUILD_DIRECTORY_BASE="repo"
+FAIL_REPOS="${PWD}/failure_repos"
 PKGDEST="${PWD}/packages/$ARCH"
 SRCDEST="${PWD}/build"
 CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
@@ -149,6 +151,7 @@ while read -r FOLDER_NAME ; do
             echo -e "\033[0;32mSkip folder that package already build $FOLDER_NAME\033[0m";
             continue
         fi
+        echo "$FOLDER_NAME" >> "$FAIL_REPOS"
         echo -e "\033[0;31mSkip folder $FOLDER_NAME. Build fail: $LAST_STATUS\033[0m";
         UNSUCCESSFUL=1;
     }
@@ -162,6 +165,8 @@ date +%s > "$PKGDEST/LASTBUILD"
 
 if [ $UNSUCCESSFUL -eq 1 ]; then
     [ -d "$SRCDEST" ] && rm -r "$SRCDEST"
+    echo -e "\033[0;31mBuild failed repositories:\033[0m"
+    cat "$FAIL_REPOS"
     if [ -n "$CI_DEFAULT_BRANCH" ] && [ -n "$CI_COMMIT_BRANCH" ] && [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
         touch .fail
         echo -e "\033[0;31mCreate fail flag because \$UNSUCCESSFUL set to 1\033[0m"

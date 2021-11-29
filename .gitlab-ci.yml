@@ -32,8 +32,7 @@ build:
     - curl -fL https://keys.openpgp.org/vks/v1/by-fingerprint/4A0F0C8BC709ACA4341767FB243975C8DB9656B9 | pacman-key --add -
     - pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
     - pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
-    #- pacman --noconfirm --needed -Syu kunoisayami-gitlab-ci
-    - pacman --noconfirm --needed -Syu base-devel git gnupg yay
+    - pacman --noconfirm --needed -Syu base-devel kunoisayami-ci-build-meta
     - useradd -m build
     - echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
     #- cp -r ../$CI_PROJECT_TITLE  /home/build/
@@ -41,7 +40,7 @@ build:
     - chown -R build:build ../$CI_PROJECT_TITLE
     - su -c './utils/pkgbuild.sh --import-gpg' build
     - su -c './utils/pkgbuild.sh' build
-    - rm -rf build/
+    - "rm -rf build/ || true"
 
 # only push to master master trigger push
 post:

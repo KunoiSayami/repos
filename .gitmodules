@@ -40,3 +40,6 @@
 [submodule "repo/gtk3-classic"]
 	path = repo/gtk3-classic
 	url = https://aur.archlinux.org/gtk3-classic.git
+[submodule "repo/java-16-openjdk"]
+	path = repo/java-16-openjdk
+	url = https://aur.archlinux.org/java-16-openjdk.git
