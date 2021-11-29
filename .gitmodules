@@ -43,6 +43,3 @@
 [submodule "repo/java-16-openjdk"]
 	path = repo/java-16-openjdk
 	url = https://aur.archlinux.org/java-16-openjdk.git
-[submodule "repo/jdk8"]
-	path = repo/jdk8
-	url = https://aur.archlinux.org/jdk8.git
