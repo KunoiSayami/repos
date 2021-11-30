@@ -43,3 +43,6 @@
 [submodule "repo/jdk16-adoptopenjdk"]
 	path = repo/jdk16-adoptopenjdk
 	url = https://aur.archlinux.org/jdk16-adoptopenjdk.git
+[submodule "repo/google-chrome"]
+	path = repo/google-chrome
+	url = https://aur.archlinux.org/google-chrome.git
