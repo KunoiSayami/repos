@@ -55,7 +55,7 @@ async def main() -> int:
     if not make_deps_match:
         logging.warning("Can't found `makedepends' keyword, if you think this is mistake, please report issue")
 
-    deps = [dep.strip('\'') for m in {runtime_deps_match, make_deps_match} for dep in m.group('DEPS').split()]
+    deps = [dep.strip('\'') for m in {runtime_deps_match, make_deps_match} if m for dep in m.group('DEPS').split()]
 
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
         tasks = [asyncio.create_task(check_pkg(session, n, pkg)) for n, pkg in enumerate(deps)]
