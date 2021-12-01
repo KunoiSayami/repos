@@ -22,13 +22,12 @@ import heapq
 import logging
 import re
 from pathlib import Path
-from typing import Tuple
 
 import aiofiles
 import aiohttp
 
 
-async def check_pkg(session: aiohttp.ClientSession, num: int, pkg: str) -> Tuple[int, bool]:
+async def check_pkg(session: aiohttp.ClientSession, num: int, pkg: str) -> tuple[int, bool]:
     logging.info(f'Checking {pkg}')
     ret = await session.head(f'https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h={pkg}')
     return num, ret.status == 200
@@ -48,12 +47,15 @@ async def main() -> int:
     async with aiofiles.open(pkgbuild_file, 'r', encoding='utf-8') as f:
         pkgbuild_text = await f.read()
 
-    deps_match = re.search(r"makedepends=\((?P<DEPS>([^)]|\n)+)\)", pkgbuild_text, re.M)
-    if not deps_match:
-        logging.error("Can't found `makedepends' keyword, if you think this is mistake, please report issue")
-        return 2
+    runtime_deps_match = re.search(r"depends=\((?P<DEPS>([^)]|\n)*)\)", pkgbuild_text, re.M)
+    if not runtime_deps_match:
+        logging.warning("Can't found 'depends' keyword, if you think this is mistake, please report issue")
 
-    deps = deps_match.group('DEPS').split()
+    make_deps_match = re.search(r"makedepends=\((?P<DEPS>([^)]|\n)*)\)", pkgbuild_text, re.M)
+    if not make_deps_match:
+        logging.warning("Can't found `makedepends' keyword, if you think this is mistake, please report issue")
+
+    deps = [dep.strip('\'') for m in {runtime_deps_match, make_deps_match} if m for dep in m.group('DEPS').split()]
 
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
         tasks = [asyncio.create_task(check_pkg(session, n, pkg)) for n, pkg in enumerate(deps)]
