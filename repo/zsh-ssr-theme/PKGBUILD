@@ -2,15 +2,15 @@
 
 pkgname=zsh-ssr-theme
 pkgver=0.0.1
-pkgrel=3
+pkgrel=4
 pkgdesc="This package provides ssr's zsh theme"
 arch=('any')
 url=https://github.com/KunoiSayami/dotfiles/
 source=(
-    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/4a8c1ae3b9bb07dff075ac369bf9f90d28861263/.zshrc
+    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/f91e1967494703078a35bed834bc0a7f80d00664/.zshrc
     https://gist.githubusercontent.com/KunoiSayami/6e4177ef13a4f8df0cbf3731b68e013c/raw/8ff98306c08ef9133f5125b5f9a8b67698a66a04/p10k.zsh)
 sha512sums=(
-    '0abc1a1b9e886a21e26c01df9f909b3e6fc7caf9b73713ca0d0547e8c37e8d665f5546f5049fa2e2d459675ae73d9362fbbed725318ad9c2851dbb7141472d4e'
+    'cd92f1db1947f95c059baf2814c68e682eb2c113d6c2383bd9c2a40af3ee944e4bc658a7a18bcdc0ca17d9b6ad99455a909b59dca85565b138767175b52b06e9'
     'bc3624198d6ac743588edfd17df553a87badb13c78014a47eb67c14a4e4010d32dc6981f5fbff33e60cc1efe13e5cbeca8cd4d8852adcf47090a5d14857ed45e')
 makedepends=()
 depends=('zsh' 'zsh-completions' 'zsh-autosuggestions' 'zsh-theme-powerlevel10k')

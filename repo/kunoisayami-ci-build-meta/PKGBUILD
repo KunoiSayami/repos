@@ -1,8 +1,0 @@
-# Maintainer: KunoiSayami <i@leanhe.dev>
-
-pkgname=kunoisayami-ci-build-meta
-pkgver=1
-pkgrel=1
-pkgdesc="This package provides kunoisayami gitlab ci build tools"
-arch=('any')
-depends=('git' 'gnupg' 'yay')

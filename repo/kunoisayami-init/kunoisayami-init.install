@@ -1,0 +1,28 @@
+# From: https://aur.archlinux.org/cgit/aur.git/tree/google-chrome.install?h=google-chrome
+# Colored makepkg-like functions
+
+note() {
+    printf "${blue}==>${yellow} NOTE:${bold} $1${all_off}\n"
+}
+
+all_off="$(tput sgr0)"
+bold="${all_off}$(tput bold)"
+blue="${bold}$(tput setaf 4)"
+yellow="${bold}$(tput setaf 3)"
+
+post_install() {
+    if [ ! -r /tmp/hostname ]; then
+        note "hostname file not found"
+        exit 1;
+    fi
+    echo "127.0.0.1 $(cat /tmp/hostname) localhost" >> /etc/hosts
+    echo "::1 $(cat /tmp/hostname) localhost" >> /etc/hosts
+    echo "127.0.0.1 $(cat /tmp/hostname).localdomain localhost.domain" >> /etc/hosts
+    echo "::1 $(cat /tmp/hostname).localdomain localhost.domain" >> /etc/hosts
+    sed -i 's/#en_GB.UTF-8/en_GB.UTF-8/g' /etc/locale.gen
+    locale-gen
+    echo "LANG=en_GB.UTF-8" > /etc/locale.conf
+    ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
+    systemctl enable --now systemd-timesyncd
+
+}
