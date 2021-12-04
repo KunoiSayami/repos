@@ -1,0 +1,10 @@
+[Unit]
+Description=Repository sync timer
+After=network.target
+
+[Timer]
+Unit=repo-rsync@%i.service
+OnCalendar=*-*-* 8,11,14,17,20,2,6:00:00
+
+[Install]
+WantedBy=timers.target

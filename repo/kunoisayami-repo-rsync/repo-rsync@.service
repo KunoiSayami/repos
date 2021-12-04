@@ -1,0 +1,12 @@
+[Unit]
+Description=Repository sync service
+After=network.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10s
+ExecStart=/usr/bin/rsync -r --links --partial -vc --update --delete %i::repo/* .
+WorkingDirectory=/var/www/repo/
+KillSignal=SIGINT
+TimeoutSec=900

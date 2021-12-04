@@ -1,0 +1,22 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+
+pkgname=kunoisayami-repo-rsync
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="This package provides kunoisayami sync repository services"
+source=(
+  repo-rsync@.service
+  repo-rsync@.timer)
+sha512sums=(
+    '51cf2e945e9b72d27cfe99b0b4b4a978231254d7e8548e258bec21e6ec7cbd88f52b9e788747d3cd166d0e3e7f2a59c4c41292b18c53962d4e6ebb48edd77497'
+    '6a3bf5bf8dd1405837d0b5cdfe4ef30ce3a3393ad7009dd46b5fa8bb50c455ce710113ccfcc43b42333f2e422f95d11ae857926ff11e8822aeb45c754725df5d')
+arch=('any')
+depends=('rsync' 'systemd')
+
+package() {
+
+    install -dm755 "$pkgdir"/lib/systemd/
+
+    install -m644 repo-rsync@.service "$pkgdir"/lib/systemd/
+    install -m644 repo-rsync@.timer "$pkgdir"/lib/systemd/
+}
