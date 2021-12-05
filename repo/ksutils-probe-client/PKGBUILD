@@ -3,13 +3,13 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.0
-pkgrel=2
+pkgrel=3
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
 source=(
     git://github.com/KunoiSayami/probe-client#tag=2.4.0
-    $pkgname@.service)
+    "$pkgname@.service")
 license=('AGPL3')
 sha512sums=(
     'SKIP'

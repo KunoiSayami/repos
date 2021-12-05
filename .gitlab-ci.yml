@@ -15,7 +15,9 @@ build:
     GIT_SUBMODULE_STRATEGY: recursive
 
   artifacts:
-    untracked: true
+    paths:
+      - packages/
+      - .fail
     expire_in: 4 hours
   only:
     changes:
