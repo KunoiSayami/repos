@@ -2,7 +2,7 @@
 
 pkgname=kunoisayami-repo-rsync
 pkgver=0.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="This package provides kunoisayami sync repository services"
 source=(
   repo-rsync@.service
@@ -15,8 +15,8 @@ depends=('rsync' 'systemd')
 
 package() {
 
-    install -dm755 "$pkgdir"/lib/systemd/
+    install -dm755 "$pkgdir"/lib/systemd/system/
 
-    install -m644 repo-rsync@.service "$pkgdir"/lib/systemd/
-    install -m644 repo-rsync@.timer "$pkgdir"/lib/systemd/
+    install -m644 repo-rsync@.service "$pkgdir"/lib/systemd/system/
+    install -m644 repo-rsync@.timer "$pkgdir"/lib/systemd/system/
 }
