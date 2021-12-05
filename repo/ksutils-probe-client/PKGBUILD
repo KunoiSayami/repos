@@ -3,7 +3,7 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.0
-pkgrel=4
+pkgrel=5
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
@@ -29,5 +29,5 @@ package() {
     install -dm755 "$pkgdir"/usr/bin
 
     install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
-    install -m644 probe-client@.service "$pkgdir"/lib/systemd/system
+    install -m644 "$pkgname@.service" "$pkgdir"/lib/systemd/system
 }
