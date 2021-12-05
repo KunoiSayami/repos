@@ -3,7 +3,7 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.0
-pkgrel=3
+pkgrel=4
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
@@ -19,16 +19,15 @@ depends=('openssl')
 provides=("$_basename")
 
 build() {
+    cd "$_basename"
     cargo build --release
 }
 
 package() {
-    cd "$srcdir/$pkgname"
-
     install -dm755 "$pkgdir"/etc/ksutils/
     install -dm700 "$pkgdir"/etc/ksutils/probe-client/
     install -dm755 "$pkgdir"/usr/bin
-    install -m755 target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
 
+    install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
     install -m644 probe-client@.service "$pkgdir"/lib/systemd/system
 }
