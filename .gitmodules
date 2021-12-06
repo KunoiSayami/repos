@@ -49,3 +49,9 @@
 [submodule "repo/liboping"]
 	path = repo/liboping
 	url = https://aur.archlinux.org/liboping.git
+[submodule "repo/auracle-git"]
+	path = repo/auracle-git
+	url = https://aur.archlinux.org/auracle-git.git
+[submodule "repo/pacaur"]
+	path = repo/pacaur
+	url = https://aur.archlinux.org/pacaur.git
