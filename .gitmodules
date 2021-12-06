@@ -46,3 +46,6 @@
 [submodule "repo/google-chrome"]
 	path = repo/google-chrome
 	url = https://aur.archlinux.org/google-chrome.git
+[submodule "repo/liboping"]
+	path = repo/liboping
+	url = https://aur.archlinux.org/liboping.git

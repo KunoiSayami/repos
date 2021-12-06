@@ -14,6 +14,10 @@ RUN pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 RUN pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
+RUN pacman --noconfirm --needed -Sy reflector
+
+RUN reflector --save /etc/pacman.d/mirrorlist --latest 2 --sort rate
+
 RUN pacman --noconfirm --needed -Syu base-devel gnupg git yay
 
 RUN useradd -m build
