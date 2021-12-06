@@ -28,7 +28,7 @@ package() {
     install -dm755 "$pkgdir"/etc/ksutils/
     install -dm700 "$pkgdir"/etc/ksutils/probe-client/
     install -dm755 "$pkgdir"/usr/bin
-    #install -dm755 "$pkgdir"/lib/systemd/system/
+    install -d "$pkgdir"/lib/systemd/system/
 
     install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
     install -m644 "$pkgname@.service" "$pkgdir"/lib/systemd/system/
