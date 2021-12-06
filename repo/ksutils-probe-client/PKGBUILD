@@ -3,7 +3,7 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.2
-pkgrel=4
+pkgrel=5
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
@@ -13,7 +13,7 @@ source=(
 license=('AGPL3')
 sha512sums=(
     'SKIP'
-    '44c2385ef74e5cd2332404151c46db1622abc3338d9ee90148dc2f86e2aa97e028a7145b5d25a00b5f5626470a14937c6f27c6bbef6d0a9b56291daabf56bdad')
+    '2895477aef4263fd9cb5fd7d594e064817872c298d30a46676b94274f542b31f0127be339d59d901c5f5691baf14b21861eea4b4b416a457bf9a6f371bd1bf82')
 makedepends=('cargo' 'git')
 depends=('openssl' 'systemd')
 provides=("$_basename")
