@@ -17,4 +17,6 @@ CSIlcyIsIGhpc3Rfc3ltYm9sc191dGY4W2luZGV4XSk7CgkJZWxzZQoJCQltdndhZGRjaCAoY3R4
 LT53aW5kb3csIC8qIHkgPSAqLyAzLCAvKiB4ID0gKi8geCArIDIsCgkJCQkJaGlzdF9zeW1ib2xz
 X2Fjc1tpbmRleF0gfCBBX0FMVENIQVJTRVQpOw==
 EOF
-sed -i '/src\/Makefile.in/a \\n        patch -p1 -i ..\/61.patch' PKGBUILD
+sed -i '/src\/Makefile.in/a \\n\tpatch -p1 -i ..\/61.patch' PKGBUILD
+sed -i "/sha256sums/a \ \ \ \ \ \ \ \ \ \ \ \ \'ed44510859a300ea49331924db071ddaec10bd007154f11720b9f6a5d86c262e'" PKGBUILD
+sed -i "/.tar.bz2/a \ \ \ \ \ \ \ \ '61.patch'" PKGBUILD
