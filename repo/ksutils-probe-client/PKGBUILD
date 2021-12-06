@@ -3,17 +3,19 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.2
-pkgrel=5
+pkgrel=6
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
 source=(
     git://github.com/KunoiSayami/probe-client#tag=2.4.2
-    "$pkgname@.service")
+    "$pkgname@.service"
+    "default.toml")
 license=('AGPL3')
 sha512sums=(
     'SKIP'
-    '2895477aef4263fd9cb5fd7d594e064817872c298d30a46676b94274f542b31f0127be339d59d901c5f5691baf14b21861eea4b4b416a457bf9a6f371bd1bf82')
+    '2895477aef4263fd9cb5fd7d594e064817872c298d30a46676b94274f542b31f0127be339d59d901c5f5691baf14b21861eea4b4b416a457bf9a6f371bd1bf82'
+    '4750135cc721b513a009c1e656bb8a128ee5930eafa8976f0961258622a6af28c67f6eab89250be8d8cb4268b5c5b156b6b92cafdf130ffbc67d373a1ffb3b12')
 makedepends=('cargo' 'git')
 depends=('openssl' 'systemd')
 provides=("$_basename")
@@ -25,11 +27,11 @@ build() {
 }
 
 package() {
-    install -dm755 "$pkgdir"/etc/ksutils/
-    install -dm700 "$pkgdir"/etc/ksutils/probe-client/
+    install -dm700 "$pkgdir"/etc/ksutils/probe-client
     install -dm755 "$pkgdir"/usr/bin
     install -dm755 "$pkgdir"/usr/lib/systemd/system
 
     install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
+    isntall -m600 default.toml "$pkgdir"/etc/ksutils/probe-client/
     install -m644 "$pkgname@.service" "$pkgdir"/usr/lib/systemd/system/
 }
