@@ -2,13 +2,13 @@
 
 _basename=probe-client
 pkgname=ksutils-$_basename
-pkgver=2.4.0
-pkgrel=5
+pkgver=2.4.2
+pkgrel=2
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
 source=(
-    git://github.com/KunoiSayami/probe-client#tag=2.4.0
+    git://github.com/KunoiSayami/probe-client#tag=2.4.2
     "$pkgname@.service")
 license=('AGPL3')
 sha512sums=(
@@ -17,6 +17,7 @@ sha512sums=(
 makedepends=('cargo' 'git')
 depends=('openssl')
 provides=("$_basename")
+options=(!lto)
 
 build() {
     cd "$_basename"
@@ -27,7 +28,8 @@ package() {
     install -dm755 "$pkgdir"/etc/ksutils/
     install -dm700 "$pkgdir"/etc/ksutils/probe-client/
     install -dm755 "$pkgdir"/usr/bin
+    install -dm755 "$pkgdir"/lib/systemd/system/
 
     install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
-    install -m644 "$pkgname@.service" "$pkgdir"/lib/systemd/system
+    install -m644 "$pkgname@.service" "$pkgdir"/lib/systemd/system/
 }

@@ -16,6 +16,9 @@ PKGDEST="${PWD}/packages/$ARCH"
 
 if [ $(find $PKGDEST -name \*.pkg\* | wc -l) -eq 0 ]; then
 	echo -e "\033[0;31mCould not find any packaged packages, skip upload\033[0m"
+	if [ -r .fail ]; then
+		exit 2;
+	fi
 	exit 0
 fi
 
