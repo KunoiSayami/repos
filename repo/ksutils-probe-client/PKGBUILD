@@ -32,6 +32,6 @@ package() {
     install -dm755 "$pkgdir"/usr/lib/systemd/system
 
     install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
-    isntall -m600 default.toml "$pkgdir"/etc/ksutils/probe-client/
+    install -m600 default.toml "$pkgdir"/etc/ksutils/probe-client/
     install -m644 "$pkgname@.service" "$pkgdir"/usr/lib/systemd/system/
 }
