@@ -40,9 +40,6 @@
 [submodule "repo/gtk3-classic"]
 	path = repo/gtk3-classic
 	url = https://aur.archlinux.org/gtk3-classic.git
-[submodule "repo/jdk16-adoptopenjdk"]
-	path = repo/jdk16-adoptopenjdk
-	url = https://aur.archlinux.org/jdk16-adoptopenjdk.git
 [submodule "repo/google-chrome"]
 	path = repo/google-chrome
 	url = https://aur.archlinux.org/google-chrome.git
