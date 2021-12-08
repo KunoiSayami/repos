@@ -1,0 +1,67 @@
+# Maintainer: Coelacanthus <coelacanthus@outlook.com>
+
+pkgbase=ttc-iosevka-celeste
+pkgver=11.2.0
+pkgrel=1
+pkgdesc='A slender monospace sans-serif and slab-serif typeface inspired by Pragmata Pro, M+ and PF DIN Mono. Celeste Variant'
+arch=('any')
+url='https://be5invis.github.io/Iosevka/'
+license=('custom:OFL')
+makedepends=('git' 'nodejs>=12.22.0' 'npm' 'ttfautohint')
+depends=()
+source=("https://github.com/be5invis/Iosevka/archive//v$pkgver.tar.gz"
+        'private-build-plans.toml')
+b2sums=('a628acf55cc4357cf95343e1ec9555ec58487809855ca5f29b5c3f22ada5ff55000585b9f0f449536e6ba370950a3efa8eb16c2766631706d2fbba068b7810f9'
+        '217475f7acbe27ec38f6a33b4cdb3932af1a00602d1273936bde130b0c00c0fc3ef186bc9c5cd7945acafdb23e9beec0ff5db797c8622975e30df9d676ff6473')
+
+prepare () {
+    cd ${srcdir}
+    cp private-build-plans.toml Iosevka-${pkgver}/private-build-plans.toml
+}
+
+build () {
+    cd ${srcdir}/Iosevka-${pkgver}
+    npm install
+    npm update
+    npm run build -- contents::${pkgname#*-}
+    npm run build -- ttc::${pkgname#*-}
+    npm run build -- super-tcc::${pkgname#*-}
+    tree dist
+}
+
+_package () {
+    pkgdesc='A slender monospace sans-serif and slab-serif typeface inspired by Pragmata Pro, M+ and PF DIN Mono. Celeste Variant, TTC edition'
+    install -d "${pkgdir}/usr/share/fonts/TTF"
+    install -m644 Iosevka-${pkgver}/dist/*/ttc/*.ttc "${pkgdir}/usr/share/fonts/TTF/"
+    install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+    install -m644 Iosevka-${pkgver}/LICENSE.md "${pkgdir}/usr/share/licenses/${pkgname}/"
+}
+_package-ttf-iosevka-celeste () {
+    pkgdesc='A slender monospace sans-serif and slab-serif typeface inspired by Pragmata Pro, M+ and PF DIN Mono. Celeste Variant, TTF edition'
+    install -d "${pkgdir}/usr/share/fonts/TTF"
+    install -m644 Iosevka-${pkgver}/dist/*/ttf/*.ttf "${pkgdir}/usr/share/fonts/TTF/"
+    install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+    install -m644 Iosevka-${pkgver}/LICENSE.md "${pkgdir}/usr/share/licenses/${pkgname}/"
+}
+_package-ttc-iosevka-celeste-super () {
+    pkgdesc='A slender monospace sans-serif and slab-serif typeface inspired by Pragmata Pro, M+ and PF DIN Mono. Celeste Variant, Super TTC edition'
+    install -d "${pkgdir}/usr/share/fonts/TTF"
+    install -m644 Iosevka-${pkgver}/dist/.super-ttc/*.ttc "${pkgdir}/usr/share/fonts/TTF/"
+    install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+    install -m644 Iosevka-${pkgver}/LICENSE.md "${pkgdir}/usr/share/licenses/${pkgname}/"
+}
+_package-woff2-iosevka-celeste () {
+    pkgdesc='A slender monospace sans-serif and slab-serif typeface inspired by Pragmata Pro, M+ and PF DIN Mono. Celeste Variant, WOFF2 edition'
+    install -d "${pkgdir}/usr/share/fonts/WOFF2"
+    install -m644 Iosevka-${pkgver}/dist/*/woff2/*.woff2 "${pkgdir}/usr/share/fonts/WOFF2/"
+    install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+    install -m644 Iosevka-${pkgver}/LICENSE.md "${pkgdir}/usr/share/licenses/${pkgname}/"
+}
+
+pkgname=("ttc-iosevka-celeste" "ttc-iosevka-celeste-super" "ttf-iosevka-celeste" "woff2-iosevka-celeste")
+for _p in "${pkgname[@]}"; do
+  eval "package_$_p() {
+    $(declare -f "_package${_p#$pkgbase}")
+    _package${_p#$pkgbase}
+  }"
+done

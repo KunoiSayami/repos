@@ -1,0 +1,20 @@
+[buildPlans.iosevka-celeste]
+family = "Iosevka Celeste"
+spacing = "normal"
+serifs = "sans"
+no-cv-ss = false
+
+  [buildPlans.iosevka-celeste.variants]
+  inherits = "ss10"
+
+    [buildPlans.iosevka-celeste.variants.design]
+    i = "hooky"
+    l = "hooky"
+    t = "flat-hook"
+    y = "straight"
+    eszet = "sulzbacher-descending"
+    cyrl-capital-u = "cursive-flat-hook"
+    asterisk = "hex-high"
+    underscore = "high"
+    brace = "straight"
+    lig-ltgteq = "slanted"
