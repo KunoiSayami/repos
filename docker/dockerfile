@@ -24,7 +24,9 @@ RUN useradd -m build
 
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
-COPY dockerbuild.sh /home/build/
+COPY dockerbuild.sh hook.sh* /home/build/
+
+RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
 
 USER build
 

@@ -6,6 +6,7 @@ cd /home/build
 git clone --depth=3 https://github.com/kunoisayami/repos
 
 pushd repos
+git checkout $CHECKOUT_BRANCH
 git submodule update --init
 popd
 
