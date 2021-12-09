@@ -113,7 +113,7 @@ async def aur_check_update(session: aiohttp.ClientSession, item: Path, dry_run: 
         return
     if item.joinpath('.git').exists():
         if not dry_run:
-            await asyncio.create_subprocess_exec('git', '-C', f'{str(item)}', 'pull')
+            await asyncio.create_subprocess_exec('git', '-C', f'{str(item)}', 'pull', 'origin', 'master')
         logging.info(f'Upgrade {item.name} from {version} to {new_version}')
     else:
         logging.info(f'Found update {item.name}({version}) (local: {new_version})')
