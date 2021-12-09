@@ -1,0 +1,16 @@
+[Unit]
+Description=KunoiSayami utils GitHub webhook server
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10s
+Environment="RUST_LOG=info"
+ExecStart=/usr/bin/ksutils-github-webhook -c %i.toml
+WorkingDirectory=/etc/ksutils/github-webhook/
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

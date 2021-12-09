@@ -1,0 +1,9 @@
+[server]
+bind = ""
+port = 25511
+secrets = ""
+token = ""
+
+[telegram]
+bot_token = ""
+send_to = 0

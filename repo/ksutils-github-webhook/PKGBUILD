@@ -1,21 +1,21 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
-_basename=probe-client
+_basename=github-webhook
 pkgname=ksutils-$_basename
-pkgver=2.4.2
-pkgrel=6
-pkgdesc='A probe client, for distributed systems'
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='A simple webhook server forward message to telegram'
 arch=('any')
-url=https://github.com/KunoiSayami/probe-client
+url=https://github.com/KunoiSayami/github-webhook-notification.rs
 source=(
-    git://github.com/KunoiSayami/probe-client#tag=2.4.2
+    git://github.com/KunoiSayami/github-webhook-notification.rs#tag=1.0.0
     "$pkgname@.service"
     "default.toml")
 license=('AGPL3')
 sha512sums=(
     'SKIP'
-    '2895477aef4263fd9cb5fd7d594e064817872c298d30a46676b94274f542b31f0127be339d59d901c5f5691baf14b21861eea4b4b416a457bf9a6f371bd1bf82'
-    '4750135cc721b513a009c1e656bb8a128ee5930eafa8976f0961258622a6af28c67f6eab89250be8d8cb4268b5c5b156b6b92cafdf130ffbc67d373a1ffb3b12')
+    '393f3e06466e3dc6b4e550e0257279094430fab65b44c44d7c09cd6c2b26d200cd3b6aa6bc72d417c20b700a3b0f5e9a4845dddc3511d9dbaba0c3d8ff31b869'
+    '8014c6784febd857a47b9f4460d537a0a967a15fa33c6b8b2ccec382125219530f1d2cd25e406b14a902088e2c1693ed68ea43d4f4daab04829129d89ff9b803')
 makedepends=('cargo' 'git')
 depends=('systemd')
 provides=("$_basename")
