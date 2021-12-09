@@ -8,7 +8,7 @@ pkgdesc='A simple webhook server forward message to telegram'
 arch=('any')
 url=https://github.com/KunoiSayami/github-webhook-notification.rs
 source=(
-    git://github.com/KunoiSayami/github-webhook-notification.rs#tag=1.0.0
+    git://github.com/KunoiSayami/github-webhook-notification.rs#tag=v$pkgver
     "$pkgname@.service"
     "default.toml")
 license=('AGPL3')
