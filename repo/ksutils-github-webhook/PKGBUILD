@@ -1,5 +1,6 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
+_original_name=github-webhook-notification
 _basename=github-webhook
 pkgname=ksutils-$_basename
 pkgver=1.0.0
@@ -31,7 +32,7 @@ package() {
     install -dm755 "$pkgdir"/usr/bin
     install -dm755 "$pkgdir"/usr/lib/systemd/system
 
-    install -m755 "$_basename"/target/release/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
+    install -m755 "$pkgname"/target/release/"$_original_name" "$pkgdir"/usr/bin/"$pkgname"
     install -m600 default.toml "$pkgdir"/etc/ksutils/$_basename/
     install -m644 "$pkgname@.service" "$pkgdir"/usr/lib/systemd/system/
 }
