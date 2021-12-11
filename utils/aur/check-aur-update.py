@@ -35,15 +35,15 @@ async def check_aur_update(
                 f'{str(pkgbuild_file)}',
                 stdout=asyncio.subprocess.PIPE,
             )
-            async with aiofiles.open(srcinfo_file, 'w') as f:
-                await f.write((await proc.stdout.read()).decode())
-            logging.info(f'extract .SRCINFO in {str(item)}')
+            srcinfo = SRCINFO.parse((await proc.stdout.read()).decode())
+            logging.info(f'extract .SRCINFO from {srcinfo.pkgbase}')
         else:
             logging.warning(f'.SRCINFO not in {str(item)}, no tool to parse')
             return
-    async with aiofiles.open(srcinfo_file, 'r') as f:
-        srcinfo = SRCINFO.parse(await f.read())
-        version = srcinfo.get_version()
+    else:
+        async with aiofiles.open(srcinfo_file, 'r') as f:
+            srcinfo = SRCINFO.parse(await f.read())
+    version = srcinfo.get_version()
     async with session.get(f'https://aur.archlinux.org/cgit/aur.git/plain/.SRCINFO?h={srcinfo.pkgbase}') as resp:
         if resp.status != 200:
             logging.info(f'{item.name} not register in AUR')
@@ -53,7 +53,7 @@ async def check_aur_update(
         if result == 0:
             return
         elif result < 0:
-            logging.warning(f'Warning: {version} is newer than AUR')
+            logging.warning(f'Warning: {item.name}({version}) is newer than AUR')
         else:
             if item.joinpath('.git').exists():
                 if not dry_run:
@@ -70,7 +70,7 @@ async def with_sem(sem: asyncio.Semaphore, coro: Coroutine):
 
 async def main() -> int:
     parser = argparse.ArgumentParser(description='aur-check-update.py')
-    parser.add_argument('--dry', help='dry run', action='store_true')
+    parser.add_argument('--dry-run', dest='dry', help='dry run', action='store_true')
     parser.add_argument('--parse-pkgbuild', dest='script', metavar='SCRIPT',
                         help='a script to parse pkgbuild',
                         action='store')
