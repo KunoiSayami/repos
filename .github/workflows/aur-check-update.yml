@@ -1,8 +1,12 @@
-name: Check aur updates
+name: AUR check update
 
 on:
   schedule:
     - cron: '19,49 * * * *'
+  push:
+    branches:    
+      - master
+  
 
 jobs:
   check-update:
@@ -12,6 +16,7 @@ jobs:
 
     name: Build
     steps:
+      - uses: actions/checkout@v2
       - name: Set up base image
         uses: 67au/check-aur-update-github-action@v0.1.0
       - name: Initialize submodules
