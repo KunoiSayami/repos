@@ -11,17 +11,18 @@ on:
 jobs:
   check-update:
     runs-on: ubuntu-latest
+    container: archlinux:latest
     strategy:
       fail-fast: true
 
     name: Build
     steps:
       - uses: actions/checkout@v2
-      - name: Set up base image
-        uses: 67au/check-aur-update-github-action@v0.1.0
-      - name: Initialize submodules
+      - name: Install requirements and initialize submodules
         shell: bash
         run: |
+          pacman-key --init
+          pacman --noconfirm --needed -Syu git python pyalpm python-aiohttp python-aiofiles
           git submodule update --init
       - name: Check updates
         shell: bash
