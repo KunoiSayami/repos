@@ -27,6 +27,7 @@ jobs:
       - name: Check updates
         shell: bash
         run: |
+          sed -i '/as root is not allowed/d' /usr/bin/makepkg
           sed -i '/E_ROOT/d' /usr/bin/makepkg
           cd "$GITHUB_WORKSPACE"
           git submodule update --init
