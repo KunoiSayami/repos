@@ -1,12 +1,11 @@
 name: AUR check update
 
 on:
-  #schedule:
-  #  - cron: '19,49 * * * *'
+  schedule:
+    - cron: '19,49 * * * *'
   push:
-    branches:    
+    branches:
       - master
-  
 
 jobs:
   check-update:
@@ -17,26 +16,39 @@ jobs:
 
     name: Build
     steps:
-      - name: Install requirements and initialize submodules
+      - name: Install requirements
         shell: bash
         run: |
           pacman-key --init
           pacman --noconfirm --needed -Syu git python pyalpm python-aiohttp python-aiofiles
       - uses: actions/checkout@v2
-      - name: Check updates
+      - name: Initialize submodules
         shell: bash
         run: |
           cd "$GITHUB_WORKSPACE"
+          git fetch
+          git submodule update --init
+      - name: Check updates
+        shell: bash
+        run: |
+          sed -i -e '/as root is not allowed/i \ \ \ \ \ \ \ \ true' -e '/as root is not allowed/,+2d' /usr/bin/makepkg
           ./utils/aur/check-aur-update.py --parse-pkgbuild ./utils/parse-pkgbuild.sh repo
       - name: Set environments
         id: get_env
         shell: bash
         run: |
           echo "::set-output name=date::$(date +%Y%m%d%H%M)"
-          cd "$GITHUB_WORKSPACE" || true
-          echo "::set-output name=body::$(git diff --name-only | sed -e 's|^repo/|* |')"
+          if [ ! -z "$(git branch -r | grep 'update/')" ]; then
+            CREATE=0
+          else
+            CREATE=1
+          fi
+          BODY=$(git diff --name-only | sed -e 's|^repo/|* |')
+          echo "::set-output name=body::${BODY//$'\n'/'%0A'}"
+          echo "::set-output name=create::$CREATE"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
+        if: ${{ steps.get_env.outputs.create == 1 }}
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: 'Auto update aur repository ${{ steps.get_env.outputs.date }}'
