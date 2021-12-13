@@ -6,6 +6,7 @@ on:
   push:
     branches:    
       - master
+      - ci/*
   
 
 jobs:
@@ -27,6 +28,7 @@ jobs:
         shell: bash
         run: |
           cd "$GITHUB_WORKSPACE"
+          sed -i '/E_ROOT/d' /usr/bin/makepkg
           ./utils/aur/check-aur-update.py --parse-pkgbuild ./utils/parse-pkgbuild.sh repo
       - name: Set environments
         id: get_env
