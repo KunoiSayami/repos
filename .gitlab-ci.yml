@@ -1,4 +1,6 @@
 default:
+  tags:
+    - medium
   image:
     archlinux:latest
 
