@@ -30,7 +30,7 @@ cleanup() {
 function hook {
     if [ -r ../.hook/"$1" ]; then
         echo "Running $1 Hook script"
-        . ../.hook/"$1"
+        ../.hook/"$1"
     fi
 }
 
