@@ -2,6 +2,12 @@ FROM repobuildbase:latest
 
 ARG REMOTE_ADDRESS
 
+RUN useradd -m build
+
+COPY dockerbuild.sh hook.sh* /home/build/
+
+RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
+
 RUN echo -n -e '\n[kunoisayami]\nServer = ' >> /etc/pacman.conf
 
 RUN echo ${REMOTE_ADDRESS} >> /etc/pacman.conf
@@ -14,19 +20,15 @@ RUN pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 RUN pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
-RUN pacman --noconfirm --needed -Sy reflector
+RUN if [ ! -r /home/build/hook.sh ]; then pacman --noconfirm --needed -Sy reflector; fi
 
-RUN reflector --save /etc/pacman.d/mirrorlist --latest 2 --sort rate
+RUN if [ ! -r /home/build/hook.sh ]; then reflector --save /etc/pacman.d/mirrorlist --latest 2 --sort rate; fi
 
-RUN pacman --noconfirm --needed -Syu base-devel gnupg git yay
+RUN pacman --noconfirm --needed -Sy archlinux-keyring
 
-RUN useradd -m build
+RUN pacman --noconfirm --needed -Su base-devel gnupg git yay
 
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
-
-COPY dockerbuild.sh hook.sh* /home/build/
-
-RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
 
 USER build
 
