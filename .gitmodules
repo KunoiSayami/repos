@@ -52,3 +52,12 @@
 [submodule "repo/pacaur"]
 	path = repo/pacaur
 	url = https://aur.archlinux.org/pacaur.git
+[submodule "repo/trustedqsl"]
+	path = repo/trustedqsl
+	url = https://aur.archlinux.org/trustedqsl.git
+[submodule "repo/wxgtk2.8"]
+	path = repo/wxgtk2.8
+	url = https://aur.archlinux.org/wxgtk2.8.git
+[submodule "repo/hamradio-menus"]
+	path = repo/hamradio-menus
+	url = https://aur.archlinux.org/hamradio-menus.git
