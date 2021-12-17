@@ -1,22 +1,21 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
 pkgname=zsh-ssr-theme
-pkgver=0.0.1
-pkgrel=4
+pkgver=0.0.2
+pkgrel=1
 pkgdesc="This package provides ssr's zsh theme"
 arch=('any')
 url=https://github.com/KunoiSayami/dotfiles/
 source=(
-    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/f91e1967494703078a35bed834bc0a7f80d00664/.zshrc
-    https://gist.githubusercontent.com/KunoiSayami/6e4177ef13a4f8df0cbf3731b68e013c/raw/8ff98306c08ef9133f5125b5f9a8b67698a66a04/p10k.zsh)
+    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/e91dc69eb64f9beb06f0fbdefdb7f17a85247860/.zshrc
+    https://gist.githubusercontent.com/KunoiSayami/6e4177ef13a4f8df0cbf3731b68e013c/raw/8ff98306c08ef9133f5125b5f9a8b67698a66a04/p10k.zsh
+    inputrc::https://raw.githubusercontent.com/KunoiSayami/dotfiles/e91dc69eb64f9beb06f0fbdefdb7f17a85247860/.inputrc)
 sha512sums=(
-    'cd92f1db1947f95c059baf2814c68e682eb2c113d6c2383bd9c2a40af3ee944e4bc658a7a18bcdc0ca17d9b6ad99455a909b59dca85565b138767175b52b06e9'
-    'bc3624198d6ac743588edfd17df553a87badb13c78014a47eb67c14a4e4010d32dc6981f5fbff33e60cc1efe13e5cbeca8cd4d8852adcf47090a5d14857ed45e')
+    '8e653cb6133b84418e51f7169888f0d5c698441b20ee3ed067b7d5e0ef966d422e3d9be93fbea6595811bf1bd4cc4714f3e0227d6c13e3f274d2106801479b1e'
+    'bc3624198d6ac743588edfd17df553a87badb13c78014a47eb67c14a4e4010d32dc6981f5fbff33e60cc1efe13e5cbeca8cd4d8852adcf47090a5d14857ed45e'
+    '3f6f17be131e6566e229b15ac81ed248ac8d51fce40d92027ad762013f4f7769822a203b124312867e9ed826eff0ec39964897032cd79d8c5243bdc62e3aa034')
 makedepends=()
-depends=('zsh' 'zsh-completions' 'zsh-autosuggestions' 'zsh-theme-powerlevel10k')
-optdepends=(
-  'zsh-syntax-highlighting: Fish shell like syntax highlighting for Zsh'
-)
+depends=('zsh' 'zsh-completions' 'zsh-autosuggestions' 'zsh-syntax-highlighting' 'zsh-theme-powerlevel10k')
 provides=('zsh-ssr-theme')
 install=$pkgname.install
 
@@ -27,4 +26,5 @@ package() {
 
     install -m644 zshrc.zsh "$pkgdir"/etc/zsh/ssr/
     install -m644 p10k.zsh "$pkgdir"/etc/zsh/ssr/
+    install -m644 inputrc "$pkgdir"/etc/zsh/ssr/
 }
