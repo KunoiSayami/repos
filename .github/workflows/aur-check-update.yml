@@ -3,9 +3,6 @@ name: AUR check update
 on:
   schedule:
     - cron: '19,49 * * * *'
-  push:
-    branches:
-      - master
 
 jobs:
   check-update:
@@ -33,26 +30,14 @@ jobs:
         run: |
           sed -i -e '/as root is not allowed/i \ \ \ \ \ \ \ \ true' -e '/as root is not allowed/,+2d' /usr/bin/makepkg
           ./utils/aur/check-aur-update.py --parse-pkgbuild ./utils/parse-pkgbuild.sh repo
-      - name: Set environments
+      - name: Push changes
         id: get_env
         shell: bash
         run: |
-          echo "::set-output name=date::$(date +%Y%m%d%H%M)"
-          if [ ! -z "$(git branch -r | grep 'update/')" ]; then
-            CREATE=0
-          else
-            CREATE=1
+          git add .
+          if [ ! -z "$(git --no-pager diff --staged)" ]; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '<41898282+github-actions[bot]@users.noreply.github.com>'
+            git commit -s -m "Auto update aur repository $(date +%Y%m%d%H%M)$(echo -e '\n\nUpdate packages:')$(git diff --name-only | sed -e 's|^repo/|* |')" -a
+            git push
           fi
-          BODY=$(git diff --name-only | sed -e 's|^repo/|* |')
-          echo "::set-output name=body::${BODY//$'\n'/'%0A'}"
-          echo "::set-output name=create::$CREATE"
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        if: ${{ steps.get_env.outputs.create == 1 }}
-        with:
-          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          commit-message: 'Auto update aur repository ${{ steps.get_env.outputs.date }}'
-          title: Update aur repository
-          delete-branch: true
-          branch: update/aur-${{ steps.get_env.outputs.date }}
-          body: "Update packages:\n${{ steps.get_env.outputs.body }}"
