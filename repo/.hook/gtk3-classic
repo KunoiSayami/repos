@@ -1,4 +1,6 @@
 #!/bin/bash
-echo '' | sudo tee -a /etc/pacman.conf >/dev/null
-echo 'W211bHRpbGliXQpJbmNsdWRlID0gL2V0Yy9wYWNtYW4uZC9taXJyb3JsaXN0Cgo=' | base64 -d | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy
+if [ ! -r /var/lib/pacman/sync/multilib.db ]; then
+    echo '' | sudo tee -a /etc/pacman.conf >/dev/null
+    echo 'W211bHRpbGliXQpJbmNsdWRlID0gL2V0Yy9wYWNtYW4uZC9taXJyb3JsaXN0Cgo=' | base64 -d | sudo tee -a /etc/pacman.conf
+    sudo pacman -Sy
+fi

@@ -108,6 +108,13 @@ while read -r FOLDER_NAME ; do
     echo -e "\033[0;32mProcessing $FOLDER_NAME\033[0m"
     pushd "$FOLDER_NAME" || { echo -e "\033[1;33mWarning, can't chdir to $FOLDER_NAME, skipped\033[0m"; continue; }
 
+    if [ -n "$CI_COMMIT_TITLE" ] && [[ $CI_COMMIT_TITLE =~ fix\(repo\)|REBUILD ]] && \
+        [ $SKIP_VERIFIED -eq 1 ] && grep -Fxq "$FOLDER_NAME" "../.verified_repos"; then
+        echo -e "\033[0;32mSkip folder $FOLDER_NAME (verified repository)\033[0m"
+        popd
+        continue
+    fi
+
     # hook must run before other checker
     hook "$FOLDER_NAME"
 
