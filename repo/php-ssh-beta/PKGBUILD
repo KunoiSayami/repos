@@ -20,14 +20,14 @@ sha512sums=('c74d4f699853148b53cdca0eaf8837bfdbdd21d185761606acadf2442e84dbefdb0
 backup=("etc/php/conf.d/ssh2.ini")
 
 build() {
-  cd "${srcdir}/${pkgname}"
+  cd "${srcdir}/ssh2-${pkgver}"
   phpize
   ./configure --prefix=/usr --with-ssh2
   make -j $(nproc)
 }
 
 package() {
-  cd "${srcdir}/${pkgname}"
+  cd "${srcdir}/ssh2-${pkgver}"
   echo ';extension=ssh2.so' > ssh2.ini
   install -Dm644 ssh2.ini "${pkgdir}/etc/php/conf.d/ssh2.ini"
   make install INSTALL_ROOT="${pkgdir}/"
