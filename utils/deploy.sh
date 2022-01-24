@@ -11,7 +11,7 @@ fi
 if [ -z ${SSH_CLIENT+x} ]; then
     ADDITIONAL_PARAM="--partial"
 else
-    ADDITIONAL_PARAM="-Pv"
+    ADDITIONAL_PARAM="--partial -v"
 fi
 
 /usr/bin/date +%s > "packages/LASTSYNC"
