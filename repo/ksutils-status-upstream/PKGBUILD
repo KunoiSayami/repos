@@ -1,0 +1,39 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+
+_basename=status-upstream
+pkgname=ksutils-$_basename
+pkgver=0.7.2
+pkgrel=1
+pkgdesc='A statuspage.io backend'
+arch=('any')
+url=https://github.com/KunoiSayami/status-upstream.rs
+source=(
+    git://github.com/KunoiSayami/status-upstream.rs#tag=v0.7.2
+    "$pkgname@.service"
+    "default.toml")
+license=('AGPL3')
+sha512sums=(
+    'SKIP'
+    'eaa1070c16547e929115bd22f99330e556dced4576975c268a9ba9460c32ca4f844da72c230d969693e6bd98a55c1a351a3b6cc4af9fc6ac38bf18ed71dbcabb'
+    '131b897edd342eec69706ea6ddf45abf97acac58f76e41ebf1e9f34bca54863f06125e718cfa844e5e1fb18e34865cef60b4da8a9e49517cfdca8980065f09c4')
+makedepends=('cargo' 'git')
+depends=('systemd')
+provides=("$_basename")
+options=(!lto)
+backup=("etc/ksutils/$_basename/default.toml")
+install=$pkgname.install
+
+build() {
+    cd "$_basename.rs"
+    cargo build --profile release-lto
+}
+
+package() {
+    install -dm700 "$pkgdir"/etc/ksutils/$_basename
+    install -dm755 "$pkgdir"/usr/bin
+    install -dm755 "$pkgdir"/usr/lib/systemd/system
+
+    install -m755 "$_basename.rs"/target/release-lto/"$_basename" "$pkgdir"/usr/bin/"$pkgname"
+    install -m600 default.toml "$pkgdir"/etc/ksutils/$_basename/
+    install -m644 "$pkgname@.service" "$pkgdir"/usr/lib/systemd/system/
+}

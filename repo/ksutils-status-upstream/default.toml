@@ -1,0 +1,17 @@
+[upstream]
+oauth = ""
+
+[config]
+# interval = 0
+# retries_times = 3
+# retries_interval = 5
+
+[[servers]]
+addresses = ["example.com:11451|ssh", "example.moe:22|teamspeak"]
+identity_id = ""
+page = ""
+
+[[servers]]
+addresses = "example.com:19198|tcping"
+identity_id = ""
+page = ""

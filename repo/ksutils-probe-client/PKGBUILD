@@ -3,7 +3,7 @@
 _basename=probe-client
 pkgname=ksutils-$_basename
 pkgver=2.4.4
-pkgrel=1
+pkgrel=2
 pkgdesc='A probe client, for distributed systems'
 arch=('any')
 url=https://github.com/KunoiSayami/probe-client
@@ -20,6 +20,7 @@ makedepends=('cargo' 'git')
 depends=('systemd')
 provides=("$_basename")
 options=(!lto)
+backup=("etc/ksutils/$_basename/default.toml")
 
 build() {
     cd "$_basename"
