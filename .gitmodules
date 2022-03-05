@@ -61,3 +61,6 @@
 [submodule "repo/hamradio-menus"]
 	path = repo/hamradio-menus
 	url = https://aur.archlinux.org/hamradio-menus.git
+[submodule "repo/maddy"]
+	path = repo/maddy
+	url = https://aur.archlinux.org/maddy.git
