@@ -1,0 +1,2 @@
+#!/bin/bash
+sed -i 's|foxcpp.dev/maddy-builds/|github.com/foxcpp/maddy/releases/download/v|g'
