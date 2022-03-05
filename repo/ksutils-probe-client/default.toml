@@ -1,6 +1,0 @@
-[server]
-server_address = ""
-token = ""
-
-[statistics]
-enabled = false
