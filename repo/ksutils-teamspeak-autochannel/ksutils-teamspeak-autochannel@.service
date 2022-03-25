@@ -1,0 +1,16 @@
+[Unit]
+Description=KunoiSayami utils TeamSpeak autochannel service
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10s
+Environment="RUST_LOG=info"
+ExecStart=/usr/bin/ksutils-teamspeak-autochannel service %i.toml
+WorkingDirectory=/etc/ksutils/teamspeak-autochannel/
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
