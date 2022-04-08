@@ -1,8 +1,4 @@
 [server]
-server = ""
-port = 10011
-user = "serveradmin"
-password = "114514"
 # server_id = 1
 channel_id = 1
 privilege_group_id = 5
@@ -10,3 +6,14 @@ privilege_group_id = 5
 
 [misc]
 # interval = 5
+
+# This section priority is higher than web_query
+# [raw_query]
+# server = ""
+# port = 10011
+# user = "serveradmin"
+# password = "114514"
+
+[web_query]
+server = "https://localhost:10080"
+api_key = "BAA114514"
