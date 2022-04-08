@@ -3,7 +3,7 @@
 _original_name=teamspeak-autochannel
 _basename=teamspeak-autochannel
 pkgname=ksutils-$_basename
-pkgver=0.6.3
+pkgver=0.6.4
 pkgrel=1
 pkgdesc='TeamSpeak auto channel rust implement'
 arch=('any')
@@ -23,6 +23,7 @@ makedepends=('cargo' 'git')
 depends=('redis')
 provides=("$_basename")
 options=(!lto)
+backup=("etc/ksutils/$_basename/default.toml")
 
 prepare() {
     cd "$pkgname"
