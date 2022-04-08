@@ -3,7 +3,7 @@
 _original_name=teamspeak-autochannel
 _basename=teamspeak-autochannel
 pkgname=ksutils-$_basename
-pkgver=0.5.0
+pkgver=0.6.2
 pkgrel=1
 pkgdesc='TeamSpeak auto channel rust implement'
 arch=('any')
