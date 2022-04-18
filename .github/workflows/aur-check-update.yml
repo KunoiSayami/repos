@@ -19,6 +19,10 @@ jobs:
           pacman-key --init
           pacman --noconfirm --needed -Syu git python pyalpm python-aiohttp python-aiofiles
       - uses: actions/checkout@v2
+      - name: Add safe directory
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Initialize submodules
         shell: bash
         run: |
