@@ -2,8 +2,7 @@ name: AUR check update
 
 on:
   schedule:
-    - cron: '19 11 * * *'
-  push:
+    - cron: '19,49 * * * *'
 
 jobs:
   check-update:
