@@ -6,7 +6,7 @@ pkgdesc="PAM module which permits authentication via the keyring in a forwarded 
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://github.com/jbeverly/pam_ssh_agent_auth"
 license=('custom:OpenSSL')
-source=(pam_ssh_agent_auth_patched::git://github.com/FlorianFranzen/pam_ssh_agent_auth#commit=db2d41937e714b56d17771f8ee3d61f11c26cc7e)
+source=(pam_ssh_agent_auth_patched::git+https://github.com/FlorianFranzen/pam_ssh_agent_auth#commit=db2d41937e714b56d17771f8ee3d61f11c26cc7e)
 md5sums=('SKIP')
 makedepends=('git')
 depends=('openssl')
