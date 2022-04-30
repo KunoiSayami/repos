@@ -3,7 +3,7 @@
 _original_name=teamspeak-autochannel
 _basename=teamspeak-autochannel
 pkgname=ksutils-$_basename
-pkgver=2.1.1
+pkgver=2.2.0
 pkgrel=1
 pkgdesc='TeamSpeak auto channel rust implement'
 arch=('any')
@@ -17,7 +17,7 @@ license=('AGPL3')
 sha512sums=(
     'SKIP'
     'fea25058b0fcee166d953cbf74da8f06965634ee1276b6896d1c3d728df5fb94d0a9324849c90c9bb3c69863d8693c6fa2998d01d42eb0f886bc98ec65054a42'
-    'bde6a26a4060525cadcc34245f2ebb4a86f0bbda4527d15e4f30f012975e48a468f47fc2cf9b1d237b12459cbec631908fcb9577fd9c3e91fb0546ad08f4c0b4'
+    '8b068b83fa0a996ccf461d0a8bab539b62dfc4fbfd8c0e9090f9dab8c5d44624780051f7c820cd566e306ec1a3322428f28f28c57779e657308495c0e397871f'
 )
 makedepends=('cargo' 'git')
 depends=('redis')
