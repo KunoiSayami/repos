@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -Eeuo pipefail
+sudo pacman -Sy
 
 cd /home/build
 git clone --depth=3 https://github.com/kunoisayami/repos
