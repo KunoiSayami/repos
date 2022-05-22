@@ -7,7 +7,7 @@ Type=simple
 Restart=on-failure
 RestartSec=10s
 Environment="RUST_LOG=info"
-ExecStart=/usr/bin/ksutils-teamspeak-autochannel %i.toml
+ExecStart=/usr/bin/ksutils-teamspeak-autochannel %i.toml --systemd
 WorkingDirectory=/etc/ksutils/teamspeak-autochannel/
 KillSignal=SIGINT
 TimeoutStopSec=10

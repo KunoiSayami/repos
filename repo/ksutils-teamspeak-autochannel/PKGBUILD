@@ -4,7 +4,7 @@ _original_name=teamspeak-autochannel
 _basename=teamspeak-autochannel
 pkgname=ksutils-$_basename
 pkgver=2.2.4
-pkgrel=1
+pkgrel=2
 pkgdesc='TeamSpeak auto channel rust implement'
 arch=('any')
 url=https://github.com/KunoiSayami/teamspeak-autochannel.rs
@@ -16,7 +16,7 @@ source=(
 license=('AGPL3')
 sha512sums=(
     'SKIP'
-    'fea25058b0fcee166d953cbf74da8f06965634ee1276b6896d1c3d728df5fb94d0a9324849c90c9bb3c69863d8693c6fa2998d01d42eb0f886bc98ec65054a42'
+    'a8888343e3b9287a27804a011afba227352430071ae4e816055dc1f8ebba89d18a3150a3dda13774cd41865b6b1842df8ea6a76a05704b8de38d44dd37401430'
     '8b068b83fa0a996ccf461d0a8bab539b62dfc4fbfd8c0e9090f9dab8c5d44624780051f7c820cd566e306ec1a3322428f28f28c57779e657308495c0e397871f'
 )
 makedepends=('cargo' 'git')
