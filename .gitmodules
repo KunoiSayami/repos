@@ -64,3 +64,6 @@
 [submodule "repo/maddy"]
 	path = repo/maddy
 	url = https://aur.archlinux.org/maddy.git
+[submodule "repo/ffmpeg-cuda"]
+	path = repo/ffmpeg-cuda
+	url = https://aur.archlinux.org/ffmpeg-cuda.git
