@@ -1,0 +1,16 @@
+[Unit]
+Description=KunoiSayami utils TeamSpeak management tools service
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10s
+Environment="RUST_LOG=info"
+ExecStart=/usr/bin/ksutils-teamspeak-management-tools %i.toml --systemd
+WorkingDirectory=/etc/ksutils/teamspeak-management-tools/
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
