@@ -67,3 +67,6 @@
 [submodule "repo/ffmpeg-cuda"]
 	path = repo/ffmpeg-cuda
 	url = https://aur.archlinux.org/ffmpeg-cuda.git
+[submodule "repo/cinny-web-git"]
+	path = repo/cinny-web-git
+	url = https://aur.archlinux.org/cinny-web-git.git
