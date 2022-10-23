@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -Eeo pipefail
+trap cleanup SIGINT SIGTERM ERR EXIT
+
+cleanup() {
+	trap - SIGINT SIGTERM ERR EXIT
+    unset SIGNING_ARG
+    unset UNSUCCESSFUL
+    unset SKIP_VERIFIED
+	unset FOLDER_NAME
+	unset PKGDEST
+	unset SRCDEST
+	unset CONFDEST
+	unset REPO_DEST
+	unset TMPCONF
+	unset REPO_PENDING
+	unset REPO_DIFF
+	unset PKGBUILD_DIRECTORY_BASE
+	unset ARCH
+}
+
+ARCH=$(uname -m)
+CONFDEST="${PWD}/makepkg.d/makepkg.$ARCH.conf"
+
+TMPCONF="makepkg_current.conf"
+cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
+cat "$CONFDEST" >> "$TMPCONF"
+
+
+if [ "$EUID" -eq 0 ] ; then
+    echo "\033[0;32mPlease run this script as non-root\033[0m"
+    exit 3
+fi
+
+if [ -z "$1" ]; then
+    echo "\033[0;32mYou should specify remote address\033[0m"
+    exit 4
+fi
+
+curl -fL -o remote.db "$1"
+
+./uitls/ng/pkgbuild.py remote.db
