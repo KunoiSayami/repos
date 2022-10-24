@@ -293,7 +293,6 @@ if __name__ == '__main__':
     if args_.sign:
         BUILD_ENVS.pkg_dest = ['--sign']
 
-
     try:
         import coloredlogs
 
