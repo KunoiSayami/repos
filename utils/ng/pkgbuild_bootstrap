@@ -48,4 +48,6 @@ fi
 
 curl -fL -o remote.db "$REMOTE_DATABASE"
 
+sudo pacman -Sy
+
 ./utils/ng/pkgbuild.py remote.db $FLAGS

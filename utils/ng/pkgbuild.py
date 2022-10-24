@@ -5,6 +5,7 @@ import asyncio
 import dataclasses
 import lzma
 import logging
+import operator
 import os
 import pathlib
 import shutil
@@ -22,7 +23,7 @@ CI_COMMIT_BRANCH = os.getenv("CI_COMMIT_BRANCH", "")
 CI_DEFAULT_BRANCH = os.getenv("CI_DEFAULT_BRANCH", "")
 CI_COMMIT_TITLE = os.getenv("CI_COMMIT_TITLE", "")
 BUILD_OVERRIDE = os.getenv("BUILD_OVERRIDE", "")
-TRUST_GPG_SCRIPT = pathlib.Path("./utils/gpg_trust").resolve()
+TRUST_GPG_SCRIPT = pathlib.Path("./utils/trust_gpg.sh").resolve()
 GNUPG_HOME = os.getenv("HOME")
 FAIL_REPOS = []
 
@@ -178,7 +179,8 @@ async def get_build_target(pkg_db: str, home_directory: pathlib.Path, build_targ
     finished, _ = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
     if len(BUILD_OVERRIDE):
-        override = BUILD_OVERRIDE.split()
+        logger.warning("BUILD OVERRIDE: %s", BUILD_OVERRIDE)
+        override = BUILD_OVERRIDE.split(";")
         return [future.result() for future in finished if future.result().name in override]
 
     if build_all:
@@ -226,6 +228,11 @@ async def run_build(src_dest: str, pkg_dest: str, makepkg_conf: str, signing_arg
     return p.returncode
 
 
+async def install_dep_via_yay(dep: str) -> None:
+    await (await asyncio.create_subprocess_exec(
+        "yay", "--noconfirm", "--asdeps", "--needed", "--noprogressbar", "-S", dep, stdout=None)).wait()
+
+
 async def do_build(target: PackageVersionWithPath) -> int:
     try:
         os.chdir(str(target.path))
@@ -239,32 +246,59 @@ async def do_build(target: PackageVersionWithPath) -> int:
 
     if (yay_deps := target.path.parent.joinpath(".yaydeps").joinpath(base_dir_name).resolve()).is_file():
         async with aiofiles.open(str(yay_deps)) as fin:
-            while dep := await fin.readline():
+            while dep := (await fin.readline()).strip():
+                logger.debug("Find dep %s, build first", dep)
                 if (dep_dir := target.path.parent.joinpath(dep).resolve()).is_dir():
                     os.chdir(str(dep_dir))
                     await run_hook(target.path, dep)
-                    await run_build_with_install(**BUILD_ENVS.get_dict())
+                    if not (ret := await run_build_with_install(**BUILD_ENVS.get_dict())):
+                        logger.error("Build dependencies package error, skipped next step")
+                        return ret
+                else:
+                    await install_dep_via_yay(dep)
 
     if (gpg_keys := target.path.parent.joinpath(".gpg_keys").joinpath(base_dir_name).resolve()).is_file():
         await (await asyncio.create_subprocess_exec("/bin/bash", str(gpg_keys), stdout=None)).wait()
         await (await asyncio.create_subprocess_exec(str(TRUST_GPG_SCRIPT), stdout=None)).wait()
 
+    os.chdir(str(target.path))
     build_ret = await run_build(**BUILD_ENVS.get_dict())
 
     if build_ret != 0:
+        if build_ret == 13:
+            logger.warning("Already build %s, skipped.", base_dir_name)
         FAIL_REPOS.append(base_dir_name)
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
     return build_ret
 
 
-async def do_work(pkg_db: str, build_all: bool, build_target: list[str], fail_fast: bool = False) -> None:
+async def clean_installed_packages() -> int:
+    p = await asyncio.create_subprocess_exec("/bin/bash", "-c", "sudo pacman --noconfirm -Rcns $(pacman -Qdtq)", stdout=None)
+    await p.wait()
+    return p.returncode
 
-    logger.info("build_all: %s, fail_fast: %s", build_all, fail_fast)
+
+async def upload_packages() -> None:
+    remote_path = os.getenv("REMOTE_PATH")
+    upload_token = os.getenv("UPLOAD_TOKEN")
+    if remote_path is None or upload_token is None:
+        logger.error("$REMOTE_PATH OR $UPLOAD_TOKEN is None, skipped upload")
+    await (await asyncio.create_subprocess_exec(
+        "./utils/ng/upload.py", remote_path, upload_token, ARCH, "--directory", BuildEnvs.pkg_dest,
+        stdout=None
+    )).wait()
+
+
+async def do_work(pkg_db: str, build_all: bool, build_target: list[str],
+                  fail_fast: bool = False, run_auto_remove: bool = True) -> None:
+
+    logger.info("build_all: %s, fail_fast: %s, auto_remove: %s", build_all, fail_fast, run_auto_remove)
 
     home_directory = pathlib.Path(os.getcwd())
 
-    build_target = await get_build_target(pkg_db, home_directory, build_target, build_all)
+    build_target = sorted(await get_build_target(pkg_db, home_directory, build_target, build_all),
+                          key=operator.attrgetter("name"))
     logger.debug("Pending build summary (%d): %s", len(build_target), ', '.join(map(lambda x: x.name, build_target)))
 
     for target in build_target:
@@ -273,6 +307,8 @@ async def do_work(pkg_db: str, build_all: bool, build_target: list[str], fail_fa
             continue
         if (await do_build(target)) != 0 and fail_fast:
             break
+        if run_auto_remove:
+            await clean_installed_packages()
 
     if (src_dst := pathlib.Path(BUILD_ENVS.src_dest).resolve()).is_dir():
         shutil.rmtree(str(src_dst), ignore_errors=True)
@@ -284,6 +320,10 @@ async def do_work(pkg_db: str, build_all: bool, build_target: list[str], fail_fa
         logger.error("Build failed repositories:")
         for repo in FAIL_REPOS:
             logger.error("%s", repo)
+
+    os.chdir(str(home_directory))
+    if ret := await upload_packages():
+        exit(ret)
 
 
 def check_build_target(args: argparse.Namespace) -> bool:
