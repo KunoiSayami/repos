@@ -7,10 +7,12 @@ cd /home/build
 git clone --depth=3 https://github.com/kunoisayami/repos
 
 pushd repos
-git checkout $CHECKOUT_BRANCH
+git checkout "$CHECKOUT_BRANCH"
 git fetch --recurse-submodules -j2
 git submodule update --init
 popd
+
+export DOCKER_SETUP_SCRIPT=1
 
 
 if [ $UID -eq 0 ]; then
@@ -26,17 +28,13 @@ if [ $UID -eq 0 ]; then
 
     su -c "echo $GPG_PRIV_KEY | base64 -d | gpg --import" build
 
-    su -c './utils/pkgbuild.sh' build
-
-    su -e -c './utils/ci-upload.sh' build
+    su -c './utils/pkgbuild_bootstrap' build
 
 else
 
     echo $GPG_PRIV_KEY | base64 -d | gpg --import
 
-    ./utils/pkgbuild.sh
-
-    ./utils/ci-upload.sh
+    ./utils/pkgbuild_bootstrap
 
 fi
 

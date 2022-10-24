@@ -60,7 +60,7 @@ async def main(args: argparse.Namespace) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("upload.py")
-    parser.add_argument("remote_path")
+    parser.add_argument("remote_address")
     parser.add_argument("token")
     parser.add_argument("arch")
     parser.add_argument("--directory")

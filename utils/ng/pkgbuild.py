@@ -278,7 +278,7 @@ async def run_build(
     return p.returncode
 
 
-async def install_dep_via_yay(dep: str) -> None:
+async def install_dependency_via_yay(dep: str) -> None:
     await (
         await asyncio.create_subprocess_exec(
             "yay",
@@ -323,7 +323,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
                         )
                         return ret
                 else:
-                    await install_dep_via_yay(dep)
+                    await install_dependency_via_yay(dep)
 
     if (
         gpg_keys := target.path.parent.joinpath(".gpg_keys")
@@ -371,7 +371,7 @@ async def upload_packages() -> None:
             upload_token,
             ARCH,
             "--directory",
-            BuildEnvs.pkg_dest,
+            BUILD_ENVS.pkg_dest,
             stdout=None,
         )
     ).wait()
