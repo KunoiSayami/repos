@@ -23,7 +23,9 @@ def sizeof_fmt(num: int, suffix: str = "B"):
     return f"{num:.1f}Yi{suffix}"
 
 
-async def send_file(session: aiohttp.ClientSession, args: argparse.Namespace, file: str) -> None:
+async def send_file(
+    session: aiohttp.ClientSession, args: argparse.Namespace, file: str
+) -> None:
     data = aiohttp.FormData()
     data.add_field("file", open(file, "rb"), filename=file)
     data.add_field("token", args.token)
@@ -35,15 +37,19 @@ async def send_file(session: aiohttp.ClientSession, args: argparse.Namespace, fi
 async def main(args: argparse.Namespace) -> int:
     pending_upload = []
     for file in os.listdir("."):
-        if '.pkg' in file:
+        if ".pkg" in file:
             pending_upload.append(file)
 
     if not len(pending_upload):
         logger.debug("Could not find any packaged packages, skip upload")
         return 0
 
-    async with aiohttp.ClientSession(raise_for_status=True, timeout=aiohttp.ClientTimeout(60)) as session:
-        async with session.post(args.remote_address, data=build_data(args, "REQUIRE_CLEAN")):
+    async with aiohttp.ClientSession(
+        raise_for_status=True, timeout=aiohttp.ClientTimeout(60)
+    ) as session:
+        async with session.post(
+            args.remote_address, data=build_data(args, "REQUIRE_CLEAN")
+        ):
             pass
         for file in pending_upload:
             logger.info("Start upload %s (%s)", sizeof_fmt(os.stat(file).st_size))
@@ -52,7 +58,7 @@ async def main(args: argparse.Namespace) -> int:
             pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser("upload.py")
     parser.add_argument("remote_path")
     parser.add_argument("token")
