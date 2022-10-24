@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "$DOCKER_SETUP_SCRIPT" ]; then
+  echo $GPG_PRIV_KEY | base64 -d | gpg --import
+  cd "$(dirname "$0")"
+  cd ../../
+  echo "Current pwd: $(pwd)"
+fi
+
 set -Eeo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
@@ -8,6 +15,7 @@ cleanup() {
 	unset SRCDEST
 	unset CONFDEST
 	unset TMPCONF
+	unset FLAGS
 	unset ARCH
 }
 
@@ -18,17 +26,26 @@ TMPCONF="makepkg_current.conf"
 cat "${PWD}/makepkg.d/makepkg.base.conf" > "$TMPCONF"
 cat "$CONFDEST" >> "$TMPCONF"
 
+FLAGS=""
 
 if [ "$EUID" -eq 0 ] ; then
-    echo "\033[0;32mPlease run this script as non-root\033[0m"
-    exit 3
+  echo "\033[0;32mPlease run this script as non-root\033[0m"
+  exit 3
 fi
 
-if [ -z "$1" ]; then
-    echo "\033[0;32mYou should specify remote address\033[0m"
-    exit 4
+if [ -z "$REMOTE_DATABASE" ]; then
+  echo "\033[0;32mYou should specify remote address\033[0m"
+  exit 4
 fi
 
-curl -fL -o remote.db "$1"
+if [ -n "$FORCE_BUILD_ALL" ]; then
+  FLAGS+="--build_all "
+fi
 
-./uitls/ng/pkgbuild.py remote.db
+if [ -n "$BUILD_FAIL_FAST" ]; then
+  FLAGS+="--fail_fast "
+fi
+
+curl -fL -o remote.db "$REMOTE_DATABASE"
+
+./utils/ng/pkgbuild.py remote.db $FLAGS

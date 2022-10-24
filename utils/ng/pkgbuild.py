@@ -7,6 +7,7 @@ import lzma
 import logging
 import os
 import pathlib
+import shutil
 import subprocess
 import time
 
@@ -22,13 +23,14 @@ CI_DEFAULT_BRANCH = os.getenv("CI_DEFAULT_BRANCH", "")
 CI_COMMIT_TITLE = os.getenv("CI_COMMIT_TITLE", "")
 BUILD_OVERRIDE = os.getenv("BUILD_OVERRIDE", "")
 TRUST_GPG_SCRIPT = pathlib.Path("./utils/gpg_trust").resolve()
+GNUPG_HOME = os.getenv("HOME")
 FAIL_REPOS = []
 
 
 async def get_arch() -> str:
     p = await asyncio.create_subprocess_exec("uname", "-m", stdout=subprocess.PIPE)
-    stdout, _ = p.communicate()
-    return stdout.decode().lower()
+    stdout, _ = await (p.communicate())
+    return stdout.decode().lower().strip()
 
 ARCH = asyncio.run(get_arch())
 
@@ -120,15 +122,12 @@ class BuildEnvs:
         if CI_COMMIT_BRANCH == CI_DEFAULT_BRANCH and CI_COMMIT_BRANCH != '':
             self.signing_arg = ["--sign"]
         else:
-            logging.info("Skip signing package")
+            logger.info("Skip signing package")
 
     def get_dict(self) -> dict[str, str | list[str]]:
         return {
             "src_dest": self.src_dest,
-            "pkg_dest": self.src_dest, "makepkg_conf": self.makepkg_conf, "signing_arg": list[str]}
-
-
-BUILD_ENVS = BuildEnvs()
+            "pkg_dest": self.pkg_dest, "makepkg_conf": self.makepkg_conf, "signing_arg": self.signing_arg}
 
 
 def get_src_info(s: str) -> PackageVersion:
@@ -153,7 +152,7 @@ async def parse_srcinfo(path: pathlib.PurePath) -> PackageVersionWithPath:
         async with aiofiles.open(str(src_path)) as fin:
             info = get_src_info(await fin.read())
     else:
-        p = await asyncio.create_subprocess_exec('makepkg', '--printsrcinfo', cwd=src_path.parent)
+        p = await asyncio.create_subprocess_exec('makepkg', '--printsrcinfo', cwd=src_path.parent, stdout=subprocess.PIPE)
         (stdout, stderr) = (await p.communicate())
         info = get_src_info(stdout.decode())
     return PackageVersionWithPath(info, pathlib.Path(path).resolve())
@@ -170,10 +169,11 @@ async def get_build_target(pkg_db: str, home_directory: pathlib.Path, build_targ
     for folder in os.listdir(PKGBUILD_DIRECTORY_BASE):
         if folder.startswith("."):
             continue
-        if os.path.isfile(folder):
+
+        if (pkg_dir := repo_directory.joinpath(folder).resolve()).is_file():
             continue
 
-        tasks.append(asyncio.create_task(parse_srcinfo(repo_directory.joinpath(folder))))
+        tasks.append(asyncio.create_task(parse_srcinfo(pkg_dir)))
 
     finished, _ = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
@@ -197,38 +197,43 @@ async def get_build_target(pkg_db: str, home_directory: pathlib.Path, build_targ
             pending_build.append(pkg)
 
     # print(pending_build)
-    logger.debug("Pending build summary: %s", pending_build)
     return pending_build
 
 
 async def run_hook(origin_path: pathlib.Path, target: str) -> None:
     if (hook_script := origin_path.parent.joinpath(".hook").joinpath(target).resolve()).is_file():
-        logging.info("Running %s hook script")
+        logger.info("Running %s hook script", target)
         p = await asyncio.create_subprocess_exec(str(hook_script), stdout=None, stderr=subprocess.STDOUT)
         await p.wait()
         if p.returncode != 0:
-            logging.error("Hook script return code: %d, skip other operation", p.returncode)
+            logger.error("Hook script return code: %d, skip other operation", p.returncode)
             return
 
 
-async def run_build(src_dest: str, pkg_dest: str, makepkg_conf: str, signing_arg: list[str]) -> int:
+async def run_build_with_install(src_dest: str, pkg_dest: str, makepkg_conf: str, signing_arg: list[str]) -> int:
+    return await run_build(src_dest, pkg_dest, makepkg_conf, signing_arg, "-i")
+
+
+async def run_build(src_dest: str, pkg_dest: str, makepkg_conf: str, signing_arg: list[str], *other_args: str) -> int:
+    env = os.environ
+    env.update({"SRCPKGDEST": src_dest, "SRCDEST": src_dest, "PKGDEST": pkg_dest, "MAKEPKG_CONF": makepkg_conf})
     p = await asyncio.create_subprocess_exec(
-        "makepkg", "--clean", "-s", "-i", *signing_arg, "--asdeps", "--noconfirm", "--needed", "--noprogressbar",
-        env={"SRCPKGDEST": src_dest, "SRCDEST": src_dest, "PKGDEST": pkg_dest, "MAKEPKG_CONF": makepkg_conf},
+        "makepkg", "--clean", "-s", *other_args, *signing_arg, "--asdeps", "--noconfirm", "--needed", "--noprogressbar",
+        env=env,
         stdout=None
     )
     await p.wait()
     return p.returncode
 
 
-async def do_build(target: PackageVersionWithPath) -> None:
+async def do_build(target: PackageVersionWithPath) -> int:
     try:
         os.chdir(str(target.path))
-        logging.info("Building %s (%s)", target.name, target.path.stem)
+        logger.info("Building %s (%s)", target.name, target.path.name)
     except OSError:
-        logging.exception("Got exception while chdir to %s", target.path)
+        logger.exception("Got exception while chdir to %s", target.path)
 
-    base_dir_name = target.path.stem
+    base_dir_name = target.path.name
 
     await run_hook(target.path, base_dir_name)
 
@@ -238,7 +243,7 @@ async def do_build(target: PackageVersionWithPath) -> None:
                 if (dep_dir := target.path.parent.joinpath(dep).resolve()).is_dir():
                     os.chdir(str(dep_dir))
                     await run_hook(target.path, dep)
-                    await run_build(**BUILD_ENVS.get_dict())
+                    await run_build_with_install(**BUILD_ENVS.get_dict())
 
     if (gpg_keys := target.path.parent.joinpath(".gpg_keys").joinpath(base_dir_name).resolve()).is_file():
         await (await asyncio.create_subprocess_exec("/bin/bash", str(gpg_keys), stdout=None)).wait()
@@ -250,29 +255,35 @@ async def do_build(target: PackageVersionWithPath) -> None:
         FAIL_REPOS.append(base_dir_name)
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
+    return build_ret
 
-async def do_work(pkg_db: str, build_all: bool, build_target: list[str]):
+
+async def do_work(pkg_db: str, build_all: bool, build_target: list[str], fail_fast: bool = False) -> None:
+
+    logger.info("build_all: %s, fail_fast: %s", build_all, fail_fast)
 
     home_directory = pathlib.Path(os.getcwd())
 
     build_target = await get_build_target(pkg_db, home_directory, build_target, build_all)
+    logger.debug("Pending build summary (%d): %s", len(build_target), ', '.join(map(lambda x: x.name, build_target)))
 
     for target in build_target:
         if not target.arch:
-            logging.info("Skipped %s (Architecture not match)", target.name)
+            logger.info("Skipped %s (Architecture not match)", target.name)
             continue
-        await do_build(target)
+        if (await do_build(target)) != 0 and fail_fast:
+            break
 
     if (src_dst := pathlib.Path(BUILD_ENVS.src_dest).resolve()).is_dir():
-        src_dst.rmdir()
+        shutil.rmtree(str(src_dst), ignore_errors=True)
 
-    async with aiofiles.open(str(pathlib.Path(BUILD_ENVS.pkg_dest).joinpath("LASTBUILD").resolve())) as fout:
+    async with aiofiles.open(str(pathlib.Path(BUILD_ENVS.pkg_dest).joinpath("LASTBUILD").resolve()), "w") as fout:
         await fout.write(f"{int(time.time())}")
 
     if len(FAIL_REPOS):
-        logging.error("Build failed repositories:")
+        logger.error("Build failed repositories:")
         for repo in FAIL_REPOS:
-            logging.error("%s", repo)
+            logger.error("%s", repo)
 
 
 def check_build_target(args: argparse.Namespace) -> bool:
@@ -285,13 +296,12 @@ def check_build_target(args: argparse.Namespace) -> bool:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='pkgbuild.py')
-    parser.add_argument('db_file', required=True)
-    parser.add_argument('build_all', action='store_true')
-    parser.add_argument('build_target', nargs='*')
-    parser.add_argument('sign', action='store_true')
+    parser.add_argument('db_file')
+    parser.add_argument('--build_all', action='store_true')
+    parser.add_argument('--build_target', nargs='*')
+    parser.add_argument('--sign', action='store_true')
+    parser.add_argument('--fail_fast', action='store_true')
     args_ = parser.parse_args()
-    if args_.sign:
-        BUILD_ENVS.pkg_dest = ['--sign']
 
     try:
         import coloredlogs
@@ -306,4 +316,7 @@ if __name__ == '__main__':
             format="%(asctime)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s",
         )
 
-    asyncio.run(do_work(args_.db_file, check_build_target(args_), args_.build_target))
+    BUILD_ENVS = BuildEnvs()
+    if args_.sign:
+        BUILD_ENVS.signing_arg = ['--sign']
+    asyncio.run(do_work(args_.db_file, check_build_target(args_), args_.build_target, args_.fail_fast))
