@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           sed -i -e '/as root is not allowed/i \ \ \ \ \ \ \ \ true' -e '/as root is not allowed/,+2d' /usr/bin/makepkg
-          ./utils/aur/check-aur-update.py --parse-pkgbuild ./utils/parse-pkgbuild.sh repo
+          ./utils/aur/check-aur-update.py --check-deps --parse-pkgbuild ./utils/parse-pkgbuild.sh repo
       - name: Push changes
         id: get_env
         shell: bash
