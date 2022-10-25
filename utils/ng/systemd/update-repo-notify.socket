@@ -1,0 +1,16 @@
+[Unit]
+Description=Update repo notify socket
+
+[Socket]
+# If /var/run is not implemented as a symlink to /run, you may need to
+# specify ListenStream=/var/run/docker.sock instead.
+ListenStream=/run/update-repo-notify.sock
+SocketMode=0660
+SocketUser=update-database
+SocketGroup=http
+#Accept=yes
+MaxConnections=1
+FlushPending=yes
+
+[Install]
+WantedBy=sockets.target

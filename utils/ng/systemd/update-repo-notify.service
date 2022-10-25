@@ -1,0 +1,7 @@
+[Unit]
+Description=Update repo notify service
+
+[Service]
+User=update-database
+DynamicUser=yes
+ExecStart=/var/lib/update/update-db.py /run/update-repo-notify.sock

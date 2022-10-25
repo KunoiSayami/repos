@@ -25,7 +25,7 @@ CI_COMMIT_TITLE = os.getenv("CI_COMMIT_TITLE", "")
 BUILD_OVERRIDE = os.getenv("BUILD_OVERRIDE", "")
 TRUST_GPG_SCRIPT = pathlib.Path("./utils/trust_gpg.sh").resolve()
 GNUPG_HOME = os.getenv("HOME")
-FAIL_REPOS = []
+FAIL_REPOS = {}
 
 
 async def get_arch() -> str:
@@ -278,7 +278,7 @@ async def run_build(
     return p.returncode
 
 
-async def install_dependency_via_yay(dep: str) -> None:
+async def install_dependency_via_yay(dependency: str) -> None:
     await (
         await asyncio.create_subprocess_exec(
             "yay",
@@ -287,7 +287,7 @@ async def install_dependency_via_yay(dep: str) -> None:
             "--needed",
             "--noprogressbar",
             "-S",
-            dep,
+            dependency,
             stdout=None,
         )
     ).wait()
@@ -346,7 +346,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
         if build_ret == 13:
             logger.warning("Already build %s, skipped.", base_dir_name)
             return 0
-        FAIL_REPOS.append(base_dir_name)
+        FAIL_REPOS.update({base_dir_name: build_ret})
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
     return build_ret
@@ -354,10 +354,10 @@ async def do_build(target: PackageVersionWithPath) -> int:
 
 async def clean_installed_packages() -> int:
     p = await asyncio.create_subprocess_exec(
-        "/bin/bash", "-c",
-        "PKGS=$(pacman -Qdtq | tr '\n' ' '); "
-        "if [ -n \"$PKGS\" ]; then echo $PKGS | xargs sudo pacman --noconfirm -Rcns ; fi",
-        stdout=None
+        "/bin/bash",
+        "-c",
+        "pacman -Qdtq | ifne sudo pacman --noconfirm -Rcns",
+        stdout=None,
     )
     await p.wait()
     return p.returncode
@@ -431,9 +431,8 @@ async def do_work(
         await fout.write(f"{int(time.time())}")
 
     if len(FAIL_REPOS):
-        logger.error("Build failed repositories:")
-        for repo in FAIL_REPOS:
-            logger.error("%s", repo)
+        logger.error("Build failed repositories (%d):", len(FAIL_REPOS))
+        logger.error("%s", ', '.join(f'{repo}({ret_code})' for repo, ret_code in FAIL_REPOS.items()))
 
     os.chdir(str(home_directory))
     if ret := await upload_packages():
