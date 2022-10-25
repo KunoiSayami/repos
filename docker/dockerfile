@@ -26,10 +26,18 @@ RUN if [ ! -r /home/build/hook.sh ]; then reflector --save /etc/pacman.d/mirrorl
 
 RUN pacman --noconfirm --needed -Sy archlinux-keyring
 
-RUN pacman --noconfirm --needed -Su base-devel gnupg git yay python python-aiohttp python-aiofiles
+RUN pacman --noconfirm --needed -Su base-devel gnupg git yay
+
+RUN pacman --noconfirm --needed -S  python python-aiohttp python-aiofiles moreutils
 
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
+# ADD repos /home/build/repos
+
+# RUN chown -R build:build /home/build/repos
+
 USER build
 
-ENTRYPOINT ["bash", "-c", "/home/build/repos/utils/ng/pkgbuild_bootstrap"]
+# ENTRYPOINT ["bash", "-c", "/home/build/repos/utils/pkgbuild_bootstrap"]
+
+ENTRYPOINT ["bash", "-c", "/home/build/dockerbuild.sh"]

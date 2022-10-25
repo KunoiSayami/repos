@@ -370,7 +370,7 @@ async def upload_packages() -> None:
         logger.error("$REMOTE_PATH OR $UPLOAD_TOKEN is None, skipped upload")
     await (
         await asyncio.create_subprocess_exec(
-            "./utils/ng/upload.py",
+            "./utils/upload.py",
             remote_path,
             upload_token,
             ARCH,
