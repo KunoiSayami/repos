@@ -13,9 +13,10 @@ logger.setLevel(logging.DEBUG)
 
 
 async def add_package(dest: pathlib.Path, pkg_name: str, key: str) -> None:
+    # logger.debug("%s %s %s", dest, pkg_name, key)
     await (
         await asyncio.create_subprocess_exec(
-            "repo-add",
+            "/usr/bin/repo-add",
             str(dest),
             pkg_name,
             "-s",
@@ -23,7 +24,7 @@ async def add_package(dest: pathlib.Path, pkg_name: str, key: str) -> None:
             "-R",
             "-k",
             key,
-            stdout=subprocess.STDOUT,
+            stdout=None,
         )
     ).wait()
 
@@ -38,8 +39,8 @@ async def main(remote_dest: str, repo_base_name: str, sign_key: str) -> None:
         shutil.copy(str(remote_dest.joinpath(file).joinpath()), str(cwd))
 
     for file in os.listdir(str(remote_dest)):
-        if ".pkg.tar.zst" in file:
-            await add_package(database_dest, file.split(".pkg.tar.zst")[0], sign_key)
+        if ".pkg.tar.zst" in file and not file.endswith('.sig'):
+            await add_package(database_dest, file, sign_key)
 
 
 if __name__ == "__main__":
