@@ -1,5 +1,5 @@
 #!/bin/bash
-grep 'archlinuxcn' /etc/pacman.conf || exit
+grep 'archlinuxcn' /etc/pacman.conf && exit
 echo '' | sudo tee -a /etc/pacman.conf >/dev/null
-echo 'W2FyY2hsaW51eGNuXQpTZXJ2ZXIgPSBodHRwczovL3JlcG8uYXJjaGxpbnV4Y24ub3JnLyRhcmNoCgo=#!/bin/bash' | base64 -d | sudo tee -a /etc/pacman.conf
+echo 'W2FyY2hsaW51eGNuXQpTZXJ2ZXIgPSBodHRwczovL3JlcG8uYXJjaGxpbnV4Y24ub3JnLyRhcmNoCgo=' | base64 -d | sudo tee -a /etc/pacman.conf
 sudo pacman --needed --noconfirm -Sy archlinuxcn-keyring

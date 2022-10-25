@@ -1,3 +1,4 @@
 #!/bin/bash
+grep "make -j" PKGBUILD && exit
 sed -i 's/make$/make -j \$\(nproc\)\n/g' PKGBUILD
 sed -i 's/make /make -j \$\(nproc\) /g' PKGBUILD

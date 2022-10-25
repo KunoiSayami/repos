@@ -345,6 +345,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
     if build_ret != 0:
         if build_ret == 13:
             logger.warning("Already build %s, skipped.", base_dir_name)
+            return 0
         FAIL_REPOS.append(base_dir_name)
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
@@ -353,7 +354,10 @@ async def do_build(target: PackageVersionWithPath) -> int:
 
 async def clean_installed_packages() -> int:
     p = await asyncio.create_subprocess_exec(
-        "/bin/bash", "-c", "sudo pacman --noconfirm -Rcns $(pacman -Qdtq)", stdout=None
+        "/bin/bash", "-c",
+        "PKGS=$(pacman -Qdtq | tr '\n' ' '); "
+        "if [ -n \"$PKGS\" ]; then echo $PKGS | xargs sudo pacman --noconfirm -Rcns ; fi",
+        stdout=None
     )
     await p.wait()
     return p.returncode
@@ -408,10 +412,15 @@ async def do_work(
         if not target.arch:
             logger.info("Skipped %s (Architecture not match)", target.name)
             continue
-        if (await do_build(target)) != 0 and fail_fast:
-            break
+        if (await do_build(target)) != 0:
+            if fail_fast:
+                break
+            else:
+                await asyncio.sleep(5)
         if run_auto_remove:
             await clean_installed_packages()
+        for _ in range(3):
+            logger.debug("---------------------------------------------------------")
 
     if (src_dst := pathlib.Path(BUILD_ENVS.src_dest).resolve()).is_dir():
         shutil.rmtree(str(src_dst), ignore_errors=True)

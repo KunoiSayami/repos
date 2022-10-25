@@ -1,4 +1,5 @@
 #!/bin/bash
+grep "ed44510859a300ea49331924db0" PKGBUILD && exit
 cat << EOF | base64 -d > 61.patch
 ZGlmZiAtLWdpdCBhL3NyYy9vcGluZy5jIGIvc3JjL29waW5nLmMKaW5kZXggODdjYTgxYS4uMjY4
 NDA4OCAxMDA2NDQKLS0tIGEvc3JjL29waW5nLmMKKysrIGIvc3JjL29waW5nLmMKQEAgLTExMjgs
