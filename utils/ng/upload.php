@@ -14,16 +14,13 @@
 
             if (move_uploaded_file($_FILES['file']['tmp_name'], $path)) {
                 echo "The file " . basename( $_FILES['file']['name']) . " has been uploaded";
-                $sock = stream_socket_client('unix:///run/update-repo-notify.sock', $errno, $errst);
-                fwrite($sock, $['file']['name']."\r\n");
-                fclose($sock);
             } else {
                 echo "There was an error uploading the file, please try again!";
             }
         } else if (isset($_POST['action'])) {
             if ($_POST['action'] === 'UPLOADED') {
                 $sock = stream_socket_client('unix:///run/update-repo-notify.sock', $errno, $errst);
-                fwrite($sock, "EOF\r\n");
+                fwrite($sock, "ARCH=". $_POST['arch'] ."\r\n");
                 fclose($sock);
                 echo "200 OK STARTED";
             } else if ($_POST['action'] === 'REQUIRE_CLEAN') {

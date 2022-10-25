@@ -1,0 +1,7 @@
+[Unit]
+Description=Update repo %i service
+
+[Service]
+User=update-database
+ExecStart=/var/lib/update/update-db.py /var/lib/update %i AAAABBBBCCCCDDDDDDDDCCCCBBBBAAAA
+#ExecStart=rsync

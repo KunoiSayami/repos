@@ -432,7 +432,10 @@ async def do_work(
 
     if len(FAIL_REPOS):
         logger.error("Build failed repositories (%d):", len(FAIL_REPOS))
-        logger.error("%s", ', '.join(f'{repo}({ret_code})' for repo, ret_code in FAIL_REPOS.items()))
+        logger.error(
+            "%s",
+            ", ".join(f"{repo}({ret_code})" for repo, ret_code in FAIL_REPOS.items()),
+        )
 
     os.chdir(str(home_directory))
     if ret := await upload_packages():
