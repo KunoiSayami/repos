@@ -62,4 +62,4 @@ if __name__ == "__main__":
             level=logging.DEBUG,
             format="%(asctime)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s",
         )
-    main(args_.cwd, args_.basename, args_.sign_key)
+    asyncio.run(main(args_.cwd, args_.basename, args_.sign_key))

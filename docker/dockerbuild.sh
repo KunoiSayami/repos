@@ -4,13 +4,16 @@ set -Eeuo pipefail
 sudo pacman -Sy
 
 cd /home/build
-git clone --depth=3 https://github.com/kunoisayami/repos
+if [ ! -d repos ]; then
+  git clone --depth=3 https://github.com/kunoisayami/repos
 
-pushd repos
-git checkout "$CHECKOUT_BRANCH"
-git fetch --recurse-submodules -j2
-git submodule update --init
-popd
+
+  pushd repos
+  git checkout "$CHECKOUT_BRANCH"
+  git fetch --recurse-submodules -j2
+  git submodule update --init
+  popd
+fi
 
 export DOCKER_SETUP_SCRIPT=1
 

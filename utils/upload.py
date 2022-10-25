@@ -40,8 +40,10 @@ async def main(args: argparse.Namespace) -> int:
         if ".pkg" in file:
             pending_upload.append(file)
 
+    logger.debug("Pending upload (%d): %s", len(pending_upload), pending_upload)
+
     if not len(pending_upload):
-        logger.debug("Could not find any packaged packages, skip upload")
+        logger.info("Could not find any packaged packages, skip upload")
         return 0
 
     async with aiohttp.ClientSession(
@@ -52,7 +54,7 @@ async def main(args: argparse.Namespace) -> int:
         ):
             pass
         for file in pending_upload:
-            logger.info("Start upload %s (%s)", sizeof_fmt(os.stat(file).st_size))
+            logger.info("Start upload %s (%s)", file, sizeof_fmt(os.stat(file).st_size))
             await send_file(session, args, file)
         async with session.post(args.remote_address, data=build_data(args, "UPLOADED")):
             pass

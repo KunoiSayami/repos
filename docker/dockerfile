@@ -2,12 +2,6 @@ FROM repobuildbase:latest
 
 ARG REMOTE_ADDRESS
 
-RUN useradd -m build
-
-COPY dockerbuild.sh hook.sh* /home/build/
-
-RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
-
 RUN echo -n -e '\n[kunoisayami]\nServer = ' >> /etc/pacman.conf
 
 RUN echo ${REMOTE_ADDRESS} >> /etc/pacman.conf
@@ -19,6 +13,12 @@ RUN curl -fL https://keys.openpgp.org/vks/v1/by-fingerprint/4A0F0C8BC709ACA43417
 RUN pacman-key --finger 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 RUN pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
+
+RUN useradd -m build
+
+COPY dockerbuild.sh initfolder.sh hook.sh* /home/build/
+
+RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
 
 RUN if [ ! -r /home/build/hook.sh ]; then pacman --noconfirm --needed -Sy reflector; fi
 
@@ -32,9 +32,9 @@ RUN pacman --noconfirm --needed -S  python python-aiohttp python-aiofiles moreut
 
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
-# ADD repos /home/build/repos
+ADD repos /home/build/repos
 
-# RUN chown -R build:build /home/build/repos
+RUN /home/build/initfolder.sh
 
 USER build
 

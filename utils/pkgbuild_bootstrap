@@ -5,6 +5,7 @@ if [ -z "$DOCKER_SETUP_SCRIPT" ]; then
   cd "$(dirname "$0")"
   cd ../../
   echo "Current pwd: $(pwd)"
+  sudo pacman -Sy
 fi
 
 set -Eeo pipefail
@@ -48,6 +49,5 @@ fi
 
 curl -fL -o remote.db "$REMOTE_DATABASE"
 
-sudo pacman -Sy
 
 ./utils/pkgbuild.py remote.db $FLAGS
