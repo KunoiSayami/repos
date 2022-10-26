@@ -5,7 +5,6 @@ import logging
 import os
 import pathlib
 import shutil
-import subprocess
 
 
 logger = logging.getLogger()
@@ -39,7 +38,7 @@ async def main(remote_dest: str, repo_base_name: str, sign_key: str) -> None:
         shutil.copy(str(remote_dest.joinpath(file).joinpath()), str(cwd))
 
     for file in os.listdir(str(remote_dest)):
-        if ".pkg.tar.zst" in file and not file.endswith('.sig'):
+        if ".pkg.tar.zst" in file and not file.endswith(".sig"):
             await add_package(database_dest, file, sign_key)
 
 

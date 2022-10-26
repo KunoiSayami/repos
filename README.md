@@ -21,8 +21,8 @@ sudo pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 ### For developers:
 
-Use commit message starts with `fix(repo)` will let CI/CD rebuild all packages, or you can use `REBUILD`/`REBUILD_ALL` in commit title.
-`REBUILD_ALL` will ignore [verified_packages](repo/.verified_repos).
+~~Use commit message starts with `fix(repo)` will let CI/CD rebuild all packages, or you can use `REBUILD`/`REBUILD_ALL` in commit title.
+`REBUILD_ALL` will ignore [verified_packages](repo/.verified_repos).~~ (WIP: refactor build script)
 
 You need to open a pull request for every add package request.
 

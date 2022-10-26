@@ -24,7 +24,7 @@ CI_DEFAULT_BRANCH = os.getenv("CI_DEFAULT_BRANCH", "")
 CI_COMMIT_TITLE = os.getenv("CI_COMMIT_TITLE", "")
 BUILD_OVERRIDE = os.getenv("BUILD_OVERRIDE", "")
 TRUST_GPG_SCRIPT = pathlib.Path("./utils/trust_gpg.sh").resolve()
-GNUPG_HOME = os.getenv("HOME")
+NO_UPLOAD = os.getenv("BUILD_NO_UPLOAD") is None
 FAIL_REPOS = {}
 
 
@@ -315,11 +315,12 @@ async def do_build(target: PackageVersionWithPath) -> int:
                 if (dep_dir := target.path.parent.joinpath(dep).resolve()).is_dir():
                     os.chdir(str(dep_dir))
                     await run_hook(target.path, dep)
-                    if not (
+                    if (
                         ret := await run_build_with_install(**BUILD_ENVS.get_dict())
                     ):
                         logger.error(
-                            "Build dependencies package error, skipped next step"
+                            "Build dependencies package error, skipped next step (%d)",
+                            ret,
                         )
                         return ret
                 else:
@@ -346,6 +347,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
         if build_ret == 13:
             logger.warning("Already build %s, skipped.", base_dir_name)
             return 0
+        # TODO: Optimize fail_repos output
         FAIL_REPOS.update({base_dir_name: build_ret})
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
@@ -363,13 +365,13 @@ async def clean_installed_packages() -> int:
     return p.returncode
 
 
-async def upload_packages() -> None:
+async def upload_packages() -> int:
     remote_path = os.getenv("REMOTE_PATH")
     upload_token = os.getenv("UPLOAD_TOKEN")
     if remote_path is None or upload_token is None:
         logger.error("$REMOTE_PATH OR $UPLOAD_TOKEN is None, skipped upload")
     await (
-        await asyncio.create_subprocess_exec(
+        p := await asyncio.create_subprocess_exec(
             "./utils/upload.py",
             remote_path,
             upload_token,
@@ -379,6 +381,7 @@ async def upload_packages() -> None:
             stdout=None,
         )
     ).wait()
+    return p.returncode
 
 
 async def do_work(
@@ -387,7 +390,7 @@ async def do_work(
     build_target: list[str],
     fail_fast: bool = False,
     run_auto_remove: bool = True,
-) -> None:
+) -> int:
 
     logger.info(
         "build_all: %s, fail_fast: %s, auto_remove: %s",
@@ -439,7 +442,10 @@ async def do_work(
 
     os.chdir(str(home_directory))
     if ret := await upload_packages():
-        exit(ret)
+        return ret
+
+    if len(FAIL_REPOS):
+        return 1
 
 
 def check_build_target(args: argparse.Namespace) -> bool:
@@ -454,7 +460,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="pkgbuild.py")
     parser.add_argument("db_file")
     parser.add_argument("--build_all", action="store_true")
-    parser.add_argument("--build_target", nargs="*")
+    parser.add_argument("--build_target", nargs="*", default=list())
     parser.add_argument("--sign", action="store_true")
     parser.add_argument("--fail_fast", action="store_true")
     args_ = parser.parse_args()
@@ -475,7 +481,7 @@ if __name__ == "__main__":
     BUILD_ENVS = BuildEnvs()
     if args_.sign:
         BUILD_ENVS.signing_arg = ["--sign"]
-    asyncio.run(
+    ret_ = asyncio.run(
         do_work(
             args_.db_file,
             check_build_target(args_),
@@ -483,3 +489,4 @@ if __name__ == "__main__":
             args_.fail_fast,
         )
     )
+    exit(ret_)
