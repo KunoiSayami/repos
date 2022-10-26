@@ -73,7 +73,7 @@ async def check_aur_update(
             else:
                 logging.info(f'Found update {item.name}({new_version}) (local: {version})')
             if check_deps:
-                deps = list(*new_srcinfo.makedepends, *new_srcinfo.depends)
+                deps = [*new_srcinfo.makedepends, *new_srcinfo.depends]
                 async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(10)) as session:
                     tasks = [asyncio.create_task(check_pkg(session, n, pkg)) for n, pkg in enumerate(deps)]
                     yay_dep_nums = []
