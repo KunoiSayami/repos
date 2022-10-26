@@ -49,9 +49,6 @@
 [submodule "repo/trustedqsl"]
 	path = repo/trustedqsl
 	url = https://aur.archlinux.org/trustedqsl.git
-[submodule "repo/wxgtk2.8"]
-	path = repo/wxgtk2.8
-	url = https://aur.archlinux.org/wxgtk2.8.git
 [submodule "repo/hamradio-menus"]
 	path = repo/hamradio-menus
 	url = https://aur.archlinux.org/hamradio-menus.git
@@ -64,3 +61,6 @@
 [submodule "repo/cinny-web-git"]
 	path = repo/cinny-web-git
 	url = https://aur.archlinux.org/cinny-web-git.git
+[submodule "repo/wxgtk-dev"]
+	path = repo/wxgtk-dev
+	url = https://aur.archlinux.org/wxgtk-dev.git
