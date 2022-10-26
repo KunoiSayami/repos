@@ -1,0 +1,4 @@
+#!/bin/bash
+sed -i 's/make$/make -j \$\(nproc\)\n/g' PKGBUILD
+sed -i 's/make DESTDIR/make -j \$\(nproc\) DESTDIR/g' PKGBUILD
+sed -i 's/make -C/make -j \$\(nproc\) -C/g' PKGBUILD
