@@ -9,11 +9,12 @@
             }
             if (!empty($_FILES['file'])) {
 
-            $path = "/var/www/repo/". $_POST['arch'] . "/";
-            $path = $path . basename($_FILES['file']['name']);
+                $path = "/var/www/repo/". $_POST['arch'] . "/";
+                $file_name = urldecode($_FILES['file']['name']);
+                $path = $path . basename($file_name);
 
             if (move_uploaded_file($_FILES['file']['tmp_name'], $path)) {
-                echo "The file " . basename( $_FILES['file']['name']) . " has been uploaded";
+                echo "The file " . basename($file_name) . " has been uploaded";
             } else {
                 echo "There was an error uploading the file, please try again!";
             }

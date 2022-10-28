@@ -25,7 +25,7 @@ CI_COMMIT_TITLE = os.getenv("CI_COMMIT_TITLE", "")
 BUILD_OVERRIDE = os.getenv("BUILD_OVERRIDE", "")
 TRUST_GPG_SCRIPT = pathlib.Path("./utils/trust_gpg.sh").resolve()
 NO_UPLOAD = os.getenv("BUILD_NO_UPLOAD") is None
-FAIL_REPOS = {}
+FAIL_REPOS = []
 
 
 async def get_arch() -> str:
@@ -81,6 +81,19 @@ class PackageVersion:
 
     def __str__(self) -> str:
         return f"{self.name} {self.version}"
+
+
+@dataclasses.dataclass
+class MakepkgErrorReason:
+    package: str
+    code: int
+    post_install_dependency: str | None
+
+    def to_str(self) -> str:
+        if self.post_install_dependency is not None:
+            return f"{self.package}(dependency)[{self.post_install_dependency}]({self.code})"
+        else:
+            return f"{self.package}({self.code})"
 
 
 def fetch_database(pkg_db: str) -> dict[str, str]:
@@ -278,9 +291,9 @@ async def run_build(
     return p.returncode
 
 
-async def install_dependency_via_yay(dependency: str) -> None:
+async def install_dependency_via_yay(dependency: str) -> int:
     await (
-        await asyncio.create_subprocess_exec(
+        p := await asyncio.create_subprocess_exec(
             "yay",
             "--noconfirm",
             "--asdeps",
@@ -291,6 +304,16 @@ async def install_dependency_via_yay(dependency: str) -> None:
             stdout=None,
         )
     ).wait()
+    return p.returncode
+
+
+async def build_yay_dependency(target: PackageVersionWithPath, dependency: str) -> int:
+    if (dep_dir := target.path.parent.joinpath(dependency).resolve()).is_dir():
+        os.chdir(str(dep_dir))
+        await run_hook(target.path, dependency)
+        return await run_build_with_install(**BUILD_ENVS.get_dict())
+    else:
+        return await install_dependency_via_yay(dependency)
 
 
 async def do_build(target: PackageVersionWithPath) -> int:
@@ -311,20 +334,14 @@ async def do_build(target: PackageVersionWithPath) -> int:
     ).is_file():
         async with aiofiles.open(str(yay_deps)) as fin:
             while dep := (await fin.readline()).strip():
-                logger.debug("Find dep %s, build first", dep)
-                if (dep_dir := target.path.parent.joinpath(dep).resolve()).is_dir():
-                    os.chdir(str(dep_dir))
-                    await run_hook(target.path, dep)
-                    if (
-                        ret := await run_build_with_install(**BUILD_ENVS.get_dict())
-                    ):
-                        logger.error(
-                            "Build dependencies package error, skipped next step (%d)",
-                            ret,
-                        )
-                        return ret
-                else:
-                    await install_dependency_via_yay(dep)
+                logger.debug("Find dependency %s, build first", dep)
+                if ret := await build_yay_dependency(target, dep):
+                    logger.error(
+                        "Build dependencies package error, skipped next step (%d)",
+                        ret,
+                    )
+                    FAIL_REPOS.append(MakepkgErrorReason(target.name, ret, dep))
+                    return ret
 
     if (
         gpg_keys := target.path.parent.joinpath(".gpg_keys")
@@ -347,8 +364,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
         if build_ret == 13:
             logger.warning("Already build %s, skipped.", base_dir_name)
             return 0
-        # TODO: Optimize fail_repos output
-        FAIL_REPOS.update({base_dir_name: build_ret})
+        FAIL_REPOS.append(MakepkgErrorReason(base_dir_name, build_ret, None))
         logger.warning("Build %s fail: %d", base_dir_name, build_ret)
 
     return build_ret
@@ -358,7 +374,7 @@ async def clean_installed_packages() -> int:
     p = await asyncio.create_subprocess_exec(
         "/bin/bash",
         "-c",
-        "pacman -Qdtq | ifne sudo pacman --noconfirm -Rcns",
+        "pacman -Qdtq | ifne sudo pacman --noconfirm -Rcns -",
         stdout=None,
     )
     await p.wait()
@@ -437,11 +453,12 @@ async def do_work(
         logger.error("Build failed repositories (%d):", len(FAIL_REPOS))
         logger.error(
             "%s",
-            ", ".join(f"{repo}({ret_code})" for repo, ret_code in FAIL_REPOS.items()),
+            ", ".join(repo.to_str() for repo in FAIL_REPOS),
         )
 
     os.chdir(str(home_directory))
     if ret := await upload_packages():
+        logger.error("Got error in upload packages (%d)", ret)
         return ret
 
     if len(FAIL_REPOS):

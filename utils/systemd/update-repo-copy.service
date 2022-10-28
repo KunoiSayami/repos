@@ -1,0 +1,8 @@
+[Unit]
+Description=Update repo copy service
+After=update-repo@.service
+
+[Service]
+WorkingDirectory=/var/lib/update/packages/
+ExecStartPre=/var/lib/update/wait-services.sh
+ExecStart=/usr/bin/rsync -r --links -vct --update --delete . /var/www/packages
