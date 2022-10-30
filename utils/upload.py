@@ -31,7 +31,7 @@ async def send_file(
     data.add_field("token", args.token)
     data.add_field("arch", args.arch)
     async with session.post(args.remote_address, data=data) as req:
-        logger.info("%s", await req.text())
+        logger.debug("%s", await req.text())
 
 
 async def main(args: argparse.Namespace) -> int:

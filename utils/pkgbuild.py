@@ -39,20 +39,27 @@ ARCH = asyncio.run(get_arch())
 
 @dataclasses.dataclass
 class PackageVersionWithPath:
-    _version: PackageVersion
+    pkg_version: PackageVersion
     path: pathlib.Path
+    # For debug use
+    spend_time: float
 
     @property
     def name(self) -> str:
-        return self._version.name
+        return self.pkg_version.name
 
     @property
     def version(self) -> str:
-        return self._version.version
+        return self.pkg_version.version
 
     @property
     def arch(self) -> bool:
-        return self._version.arch_match
+        return self.pkg_version.arch_match
+
+    def __str__(self) -> str:
+        if self.spend_time < 0:
+            return self.pkg_version.__str__()
+        return f"{self.pkg_version.__str__()} (spend: {self.spend_time:.2f}s)"
 
 
 @dataclasses.dataclass
@@ -173,13 +180,32 @@ async def parse_srcinfo(path: pathlib.PurePath) -> PackageVersionWithPath:
     if (src_path := pathlib.Path(path.joinpath(".SRCINFO"))).is_file():
         async with aiofiles.open(str(src_path)) as fin:
             info = get_src_info(await fin.read())
+        spend_time = -1.0
     else:
+        start_time = time.time()
         p = await asyncio.create_subprocess_exec(
             "makepkg", "--printsrcinfo", cwd=src_path.parent, stdout=subprocess.PIPE
         )
         (stdout, stderr) = await p.communicate()
         info = get_src_info(stdout.decode())
-    return PackageVersionWithPath(info, pathlib.Path(path).resolve())
+        spend_time = time.time() - start_time
+    return PackageVersionWithPath(info, pathlib.Path(path).resolve(), spend_time)
+
+
+async def fetch_packages_from_directory(repo_directory: pathlib.Path) -> set[asyncio.Task[PackageVersionWithPath]]:
+    tasks = []
+
+    for folder in os.listdir(str(repo_directory)):
+        if folder.startswith("."):
+            continue
+
+        if (pkg_dir := repo_directory.joinpath(folder).resolve()).is_file():
+            continue
+
+        tasks.append(asyncio.create_task(parse_srcinfo(pkg_dir)))
+
+    finished, _ = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+    return finished
 
 
 async def get_build_target(
@@ -190,21 +216,10 @@ async def get_build_target(
 ) -> list[PackageVersionWithPath]:
 
     repo = fetch_database(pkg_db)
-    tasks = []
     pending_build = []
 
-    repo_directory = home_directory.joinpath(PKGBUILD_DIRECTORY_BASE)
+    finished = await fetch_packages_from_directory(home_directory.joinpath(PKGBUILD_DIRECTORY_BASE))
 
-    for folder in os.listdir(PKGBUILD_DIRECTORY_BASE):
-        if folder.startswith("."):
-            continue
-
-        if (pkg_dir := repo_directory.joinpath(folder).resolve()).is_file():
-            continue
-
-        tasks.append(asyncio.create_task(parse_srcinfo(pkg_dir)))
-
-    finished, _ = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
 
     if len(BUILD_OVERRIDE):
         logger.warning("BUILD OVERRIDE: %s", BUILD_OVERRIDE)
