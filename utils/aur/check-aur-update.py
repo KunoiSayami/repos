@@ -85,7 +85,7 @@ async def check_aur_update(
                 yaydeps_dir = item.parent.joinpath('.yaydeps')
 
                 if len(yay_dep_nums) > 0:
-                    async with aiofiles.open(yaydeps_dir.joinpath(item.parent.stem), 'w', encoding='utf-8') as f:
+                    async with aiofiles.open(yaydeps_dir.joinpath(item.stem), 'w', encoding='utf-8') as f:
                         await f.write(
                             '\n'.join([*(deps[heapq.heappop(yay_dep_nums)] for _ in range(len(yay_dep_nums))), '']))
 
