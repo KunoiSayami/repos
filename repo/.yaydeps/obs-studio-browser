@@ -1,6 +1,11 @@
-pod2man
+sndio
+nlohmann-json
+websocketpp
+libajantv2
+jack
+qt6-svg
+qt6-wayland
+xdg-desktop-portal
 ffmpeg-obs
-cef-minimal-obs-bin
 vlc-luajit
 ftl-sdk
-libajantv2
