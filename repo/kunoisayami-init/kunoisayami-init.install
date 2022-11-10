@@ -24,6 +24,6 @@ post_install() {
     locale-gen
     echo "LANG=en_GB.UTF-8" > /etc/locale.conf
     ln -s /usr/share/zoneinfo/Asia/Taipei /etc/localtime
-    systemctl enable --now systemd-timesyncd
+    systemctl enable --now chronyd
     note "SYSTEM REBOOT IS REQUIRED"
 }

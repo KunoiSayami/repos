@@ -15,5 +15,5 @@ yellow="${bold}$(tput setaf 3)"
 
 post_install() {
     note "Run \`echo \"[ -r /etc/zsh/ssr/zshrc.zsh ] && source /etc/zsh/ssr/zshrc.zsh\" > ~/.zshrc\` to enjoy it"
-    note "Also, maybe you will need `ln -s /etc/zsh/ssr/inputrc ~/.inputrc`"
+    note "Also, maybe you will need \`ln -s /etc/zsh/ssr/inputrc ~/.inputrc\`"
 }

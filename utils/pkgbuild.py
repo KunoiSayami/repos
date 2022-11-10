@@ -220,7 +220,6 @@ async def get_build_target(
 
     finished = await fetch_packages_from_directory(home_directory.joinpath(PKGBUILD_DIRECTORY_BASE))
 
-
     if len(BUILD_OVERRIDE):
         logger.warning("BUILD OVERRIDE: %s", BUILD_OVERRIDE)
         override = BUILD_OVERRIDE.split(";")
@@ -337,6 +336,7 @@ async def do_build(target: PackageVersionWithPath) -> int:
         logger.info("Building %s (%s)", target.name, target.path.name)
     except OSError:
         logger.exception("Got exception while chdir to %s", target.path)
+        raise
 
     base_dir_name = target.path.name
 

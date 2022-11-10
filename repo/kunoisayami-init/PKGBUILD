@@ -1,11 +1,11 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
 pkgname=kunoisayami-init
-pkgver=0.0.3
+pkgver=0.0.4
 pkgrel=1
 pkgdesc="This package provides ssr's initialize vps script"
 arch=('x86_64')
-depends=('zsh-ssr-theme')
+depends=('zsh-ssr-theme' 'chrony')
 optdepends=(
   'kunoisayami-meta: This package provides kunoisayami tools'
 )
