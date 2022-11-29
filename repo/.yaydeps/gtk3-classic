@@ -6,3 +6,10 @@ lib32-at-spi2-atk
 lib32-libxkbcommon
 lib32-json-glib
 lib32-librsvg
+lib32-libepoxy
+lib32-fribidi
+lib32-at-spi2-atk
+lib32-libxkbcommon
+lib32-json-glib
+lib32-librsvg
+gtk3-classic
