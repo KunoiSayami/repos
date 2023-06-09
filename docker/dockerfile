@@ -16,7 +16,7 @@ RUN pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 RUN useradd -m build
 
-COPY dockerbuild.sh initfolder.sh hook.sh* /home/build/
+COPY initfolder.sh hook.sh* /home/build/
 
 RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
 
@@ -33,6 +33,8 @@ RUN pacman --noconfirm --needed -S  python python-aiohttp python-aiofiles moreut
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
 ADD repos /home/build/repos
+
+COPY dockerbuild.sh /home/build/
 
 RUN /home/build/initfolder.sh
 
