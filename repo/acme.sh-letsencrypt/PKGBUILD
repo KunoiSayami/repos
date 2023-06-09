@@ -11,8 +11,8 @@ url='https://github.com/acmesh-official/acme.sh'
 license=('GPL3')
 depends=('bash')
 optdepends=('socat: for standalone mode')
-source=("acme.sh-$pkgver.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha512sums=('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e')
+source=("acme.sh-$pkgver.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
+sha512sums=('2ddd561356586a289bcd08770b7347ef2e1cb121948987031a9e53d19abd5beda433e50c659aa3ee5dc3b06bdf8e479b5b31ba0b52c4a283d2c491aead4d10ac')
 
 provides=('acme.sh')
 conflicts=('acme.sh')
