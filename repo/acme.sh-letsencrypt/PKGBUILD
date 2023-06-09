@@ -3,7 +3,7 @@
 # Contributor: Gavin Lloyd <gavinhungry@gmail.com>
 
 pkgname=acme.sh-letsencrypt
-pkgver=3.0.5
+pkgver=3.0.6
 pkgrel=1
 pkgdesc='An ACME Shell script, an acme client alternative to certbot, but we use letsencrypt by default'
 arch=('any')
@@ -12,7 +12,7 @@ license=('GPL3')
 depends=('bash')
 optdepends=('socat: for standalone mode')
 source=("acme.sh-$pkgver.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-sha512sums=('882768c84182a8b11f4f315a9b429cd84399145a97b64772a42e0c7fc478c6c5f93a6c73289410b4d2108786a7c275e99f2e47991bdca315fd7d80a4282eefc9')
+sha512sums=('cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e')
 
 provides=('acme.sh')
 conflicts=('acme.sh')
