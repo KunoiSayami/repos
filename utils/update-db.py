@@ -28,6 +28,10 @@ async def add_package(dest: pathlib.Path, pkg_name: str, key: str) -> None:
     ).wait()
 
 
+async def kill_gpg_agnet() -> None:
+    await asyncio.create_subprocess_exec("/usr/bin/gpg-connect-agent", 'killagent', '/bye')
+
+
 async def main(remote_dest: str, repo_base_name: str, sign_key: str) -> None:
     cwd = pathlib.Path(os.getcwd()).resolve()
     remote_dest = pathlib.Path(remote_dest).resolve()
@@ -40,6 +44,8 @@ async def main(remote_dest: str, repo_base_name: str, sign_key: str) -> None:
     for file in os.listdir(str(remote_dest)):
         if ".pkg.tar.zst" in file and not file.endswith(".sig"):
             await add_package(database_dest, file, sign_key)
+    
+    await kill_gpg_agnet()
 
 
 if __name__ == "__main__":
