@@ -1,9 +1,3 @@
-[submodule "repo/obs-studio-browser"]
-	path = repo/obs-studio-browser
-	url = https://aur.archlinux.org/obs-studio-browser.git
-[submodule "repo/vlc-luajit"]
-	path = repo/vlc-luajit
-	url = https://aur.archlinux.org/vlc-luajit.git
 [submodule "repo/yay"]
 	path = repo/yay
 	url = https://aur.archlinux.org/yay.git
@@ -55,9 +49,6 @@
 [submodule "repo/maddy"]
 	path = repo/maddy
 	url = https://aur.archlinux.org/maddy.git
-[submodule "repo/ffmpeg-cuda"]
-	path = repo/ffmpeg-cuda
-	url = https://aur.archlinux.org/ffmpeg-cuda.git
 [submodule "repo/wxgtk-dev"]
 	path = repo/wxgtk-dev
 	url = https://aur.archlinux.org/wxgtk-dev.git

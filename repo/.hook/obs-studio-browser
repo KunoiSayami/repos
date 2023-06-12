@@ -1,3 +1,0 @@
-#!/bin/bash
-sed -i '1 i cef-minimal-obs-bin' ../.yaydeps/obs-studio-browser
-#sed -i '1 i pod2man' ../.yaydeps/obs-studio-browser
