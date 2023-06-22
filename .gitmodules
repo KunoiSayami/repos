@@ -52,3 +52,6 @@
 [submodule "repo/cinny"]
 	path = repo/cinny
 	url = https://aur.archlinux.org/cinny.git
+[submodule "repo/prismlauncher"]
+	path = repo/prismlauncher
+	url = https://aur.archlinux.org/prismlauncher.git
