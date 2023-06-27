@@ -23,6 +23,7 @@ def sizeof_fmt(num: int, suffix: str = "B"):
     return f"{num:.1f}Yi{suffix}"
 
 
+# TODO: use upload in chunks to big file
 async def send_file(
     session: aiohttp.ClientSession, args: argparse.Namespace, file: str
 ) -> None:
@@ -47,7 +48,7 @@ async def main(args: argparse.Namespace) -> int:
         return 0
 
     async with aiohttp.ClientSession(
-        raise_for_status=True, timeout=aiohttp.ClientTimeout(60)
+        raise_for_status=True, timeout=aiohttp.ClientTimeout(30)
     ) as session:
         async with session.post(
             args.remote_address, data=build_data(args, "REQUIRE_CLEAN")
@@ -55,7 +56,13 @@ async def main(args: argparse.Namespace) -> int:
             pass
         for file in pending_upload:
             logger.info("Start upload %s (%s)", file, sizeof_fmt(os.stat(file).st_size))
-            await send_file(session, args, file)
+            for retries in range(3):
+                try:
+                    await send_file(session, args, file)
+                    break
+                except asyncio.TimeoutError:
+                    if retries == 2:
+                        raise
         async with session.post(args.remote_address, data=build_data(args, "UPLOADED")):
             pass
 
