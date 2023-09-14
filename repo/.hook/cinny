@@ -1,0 +1,5 @@
+#!/bin/bash
+if [ -v http_proxy ]; then
+    sed -i "/build\(\)/a        npm config set proxy socks5:\/\/$http_proxy" PKGBUILD
+    sed -i "/build\(\)/a        npm config set https-proxy socks5:\/\/$http_proxy" PKGBUILD
+fi

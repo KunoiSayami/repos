@@ -16,7 +16,7 @@ RUN pacman-key --lsign-key 4A0F0C8BC709ACA4341767FB243975C8DB9656B9
 
 RUN useradd -m build
 
-COPY initfolder.sh hook.sh* /home/build/
+COPY initfolder.sh hook*.sh /home/build/
 
 RUN if [ -r /home/build/hook.sh ]; then /home/build/hook.sh; fi
 
@@ -37,6 +37,8 @@ ADD repos /home/build/repos
 COPY dockerbuild.sh /home/build/
 
 RUN /home/build/initfolder.sh
+
+RUN if [ -r /home/build/hook-99.sh ]; then /home/build/hook-99.sh; fi
 
 USER build
 

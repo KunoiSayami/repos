@@ -9,6 +9,11 @@ if [ $# -eq 0 ] && [ -z "$1" ]; then
 fi
 
 pushd "$(uname -m)" || ( echo "Can't find your architecture" && exit 1 )
-docker build . -t repobuildbase
+    docker buildx build . -t repobuildbase
 popd
-docker build --build-arg "REMOTE_ADDRESS=$1" . -t repobuild
+
+if [ -v http_proxy ]; then
+  docker buildx build --build-arg "REMOTE_ADDRESS=$1" --build-arg="http_proxy=$http_proxy" --build-arg="https_proxy=$http_proxy" . -t repobuild;
+else
+  docker buildx build --build-arg "REMOTE_ADDRESS=$1" . -t repobuild;
+fi
