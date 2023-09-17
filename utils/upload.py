@@ -5,6 +5,7 @@ import logging
 import os
 
 import aiohttp
+import aiohttp_socks
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -47,8 +48,14 @@ async def main(args: argparse.Namespace) -> int:
         logger.info("Could not find any packaged packages, skip upload")
         return 0
 
+    if proxy := os.getenv("http_proxy"):
+        logger.debug("Using proxy %s", proxy)
+        proxies = aiohttp_socks.ProxyConnector.from_url(proxy, rdns=False)
+    else:
+        proxies = None
+
     async with aiohttp.ClientSession(
-        raise_for_status=True, timeout=aiohttp.ClientTimeout(30)
+        raise_for_status=True, timeout=aiohttp.ClientTimeout(30), connector=proxies
     ) as session:
         async with session.post(
             args.remote_address, data=build_data(args, "REQUIRE_CLEAN")

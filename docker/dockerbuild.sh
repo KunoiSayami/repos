@@ -4,7 +4,12 @@ set -Eeuo pipefail
 sudo pacman -Sy
 
 cd /home/build
-if [ ! -d repos ] || [ "$(ls -A repos)" ]; then
+
+if [ -f ./hook-run.sh ]; then
+   . ./hook-run.sh
+fi
+
+if [ ! -d repos ]; then
   git clone --depth=3 https://github.com/kunoisayami/repos
 
 
