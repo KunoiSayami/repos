@@ -30,7 +30,7 @@ FAIL_REPOS = []
 
 async def get_arch() -> str:
     p = await asyncio.create_subprocess_exec("uname", "-m", stdout=subprocess.PIPE)
-    stdout, _ = await (p.communicate())
+    stdout, _ = await p.communicate()
     return stdout.decode().lower().strip()
 
 
@@ -192,7 +192,9 @@ async def parse_srcinfo(path: pathlib.PurePath) -> PackageVersionWithPath:
     return PackageVersionWithPath(info, pathlib.Path(path).resolve(), spend_time)
 
 
-async def fetch_packages_from_directory(repo_directory: pathlib.Path) -> set[asyncio.Task[PackageVersionWithPath]]:
+async def fetch_packages_from_directory(
+    repo_directory: pathlib.Path,
+) -> set[asyncio.Task[PackageVersionWithPath]]:
     tasks = []
 
     for folder in os.listdir(str(repo_directory)):
@@ -214,11 +216,12 @@ async def get_build_target(
     build_target: list[str] | None,
     build_all: bool,
 ) -> list[PackageVersionWithPath]:
-
     repo = fetch_database(pkg_db)
     pending_build = []
 
-    finished = await fetch_packages_from_directory(home_directory.joinpath(PKGBUILD_DIRECTORY_BASE))
+    finished = await fetch_packages_from_directory(
+        home_directory.joinpath(PKGBUILD_DIRECTORY_BASE)
+    )
 
     if len(BUILD_OVERRIDE):
         logger.warning("BUILD OVERRIDE: %s", BUILD_OVERRIDE)
@@ -421,13 +424,14 @@ async def do_work(
     build_target: list[str],
     fail_fast: bool = False,
     run_auto_remove: bool = True,
+    dry_run: bool = False,
 ) -> int:
-
     logger.info(
-        "build_all: %s, fail_fast: %s, auto_remove: %s",
+        "build_all: %s, fail_fast: %s, auto_remove: %s, dry_run: %s",
         build_all,
         fail_fast,
         run_auto_remove,
+        dry_run,
     )
 
     home_directory = pathlib.Path(os.getcwd())
@@ -446,24 +450,34 @@ async def do_work(
         if not target.arch:
             logger.info("Skipped %s (Architecture not match)", target.name)
             continue
+        if dry_run:
+            logger.info("Skipped %s (--dry-run specified)", target.name)
+            continue
+
         if (await do_build(target)) != 0:
             if fail_fast:
                 break
             else:
-                await asyncio.sleep(5)
+                await asyncio.sleep(3)
+
         if run_auto_remove:
             await clean_installed_packages()
         for _ in range(3):
             logger.debug("---------------------------------------------------------")
 
+    if dry_run:
+        return 0
+
     if (src_dst := pathlib.Path(BUILD_ENVS.src_dest).resolve()).is_dir():
         shutil.rmtree(str(src_dst), ignore_errors=True)
 
+    # Override last build timestamp
     async with aiofiles.open(
         str(pathlib.Path(BUILD_ENVS.pkg_dest).joinpath("LASTBUILD").resolve()), "w"
     ) as fout:
         await fout.write(f"{int(time.time())}")
 
+    # Print all failed repos
     if len(FAIL_REPOS):
         logger.error("Build failed repositories (%d):", len(FAIL_REPOS))
         logger.error(
@@ -489,12 +503,38 @@ def check_build_target(args: argparse.Namespace) -> bool:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="pkgbuild.py")
-    parser.add_argument("db_file")
-    parser.add_argument("--build_all", action="store_true")
-    parser.add_argument("--build_target", nargs="*", default=list())
-    parser.add_argument("--sign", action="store_true")
-    parser.add_argument("--fail_fast", action="store_true")
+    parser = argparse.ArgumentParser(
+        description="pkgbuild.py",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("db_file", help="Remote database file")
+    parser.add_argument(
+        "--build-all", help="Force build all package", action="store_true"
+    )
+    parser.add_argument(
+        "--build-target", nargs="*", default=list(), help="Override build targets"
+    )
+    parser.add_argument(
+        "--sign", default=False, action="store_true", help="Sign package after build"
+    )
+    parser.add_argument(
+        "--fail-fast",
+        default=False,
+        action="store_true",
+        help="If build failed, exit script",
+    )
+    parser.add_argument(
+        "--disable-auto-remove",
+        default=False,
+        action="store_true",
+        help="Disable auto remove after build package",
+    )
+    parser.add_argument(
+        "--dry-run",
+        default=False,
+        action="store_true",
+        help="Run but not actually build package",
+    )
     args_ = parser.parse_args()
 
     try:
@@ -519,6 +559,8 @@ if __name__ == "__main__":
             check_build_target(args_),
             args_.build_target,
             args_.fail_fast,
+            args_.disable_auto_remove,
+            args_.dry_run,
         )
     )
     exit(ret_)
