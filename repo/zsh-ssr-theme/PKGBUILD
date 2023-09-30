@@ -1,17 +1,17 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
 pkgname=zsh-ssr-theme
-pkgver=0.0.5
+pkgver=0.0.6
 pkgrel=1
 pkgdesc="This package provides ssr's zsh theme"
 arch=('any')
 url=https://github.com/KunoiSayami/dotfiles/
 source=(
-    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/e214b43a57cb6fc74329bb1128752262224ede2e/.zshrc
+    zshrc.zsh::https://raw.githubusercontent.com/KunoiSayami/dotfiles/21064a2ebd7a9026da02e4c186a6227f41cd00f3/.zshrc
     https://gist.githubusercontent.com/KunoiSayami/6e4177ef13a4f8df0cbf3731b68e013c/raw/8ff98306c08ef9133f5125b5f9a8b67698a66a04/p10k.zsh
     inputrc::https://raw.githubusercontent.com/KunoiSayami/dotfiles/e91dc69eb64f9beb06f0fbdefdb7f17a85247860/.inputrc)
 sha512sums=(
-    'fb75da102fde0c982b9f510c3f2a6c3c20858b88b98aae478cf73e838a7806e6b1db255029aaa2f0a77a13044a67e66647d19997efa8ee794f34cf1223424802'
+    'c173e2d6e93fe1173aa5ddfe2994a1a64b1434118beafc9a41245da774e211e977f6cbe3edde9543dd421f16d36329352d00f01d695dc0c693c7b81a91de6bbf'
     'bc3624198d6ac743588edfd17df553a87badb13c78014a47eb67c14a4e4010d32dc6981f5fbff33e60cc1efe13e5cbeca8cd4d8852adcf47090a5d14857ed45e'
     '3f6f17be131e6566e229b15ac81ed248ac8d51fce40d92027ad762013f4f7769822a203b124312867e9ed826eff0ec39964897032cd79d8c5243bdc62e3aa034')
 makedepends=()
