@@ -2,7 +2,7 @@
 
 pkgname=kunoisayami-keyring
 pkgver=0.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="This package provides kunoisayami repository GPG keys"
 arch=('any')
 url=https://github.com/KunoiSayami/repos/
