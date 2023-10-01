@@ -2,14 +2,14 @@
 
 pkgname=kunoisayami-keyring
 pkgver=0.0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="This package provides kunoisayami repository GPG keys"
 arch=('any')
 url=https://github.com/KunoiSayami/repos/
 source=()
 sha512sums=()
 makedepends=()
-depends=()
+depends=('pacman')
 install=$pkgname.install
 
 package() {
