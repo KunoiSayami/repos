@@ -3,21 +3,21 @@
 _original_name=teamspeak-management-tools
 _basename=teamspeak-management-tools
 pkgname=ksutils-$_basename
-pkgver=1.0.1
+pkgver=4.1.2
 pkgrel=1
 pkgdesc='A teamspeak tools that help you manage your teamspeak server (include auto channel).'
 arch=('any')
 url=https://github.com/KunoiSayami/teamspeak-management-tools.rs
 source=(
     $pkgname::git+https://github.com/KunoiSayami/teamspeak-management-tools.rs#tag=v$pkgver
-    "$pkgname@.service"
+    "$pkgname.service"
     "default.toml"
 )
 license=('AGPL3')
 sha512sums=(
     'SKIP'
-    'edd4978a3b05b14d6352ca74e328c30af03e8665e786c4f8474df66bd9249d534a665891fdb9cf42e400f35a3887ec0cb95e10c7f32a1d2898fbd4b485aaf1b7'
-    '7e6d378c49ed01bce2ecb92f6226204ce644fb379b6c6b2c82d951b45c898d0a59971dd198e4add35998918a20dfccad00f005dd4057e8fa15e7bdbf3ae53424'
+    '444af3701bfb593266efe8b2fa7f6e87cdca0bb3e36865de4d662acfdbc47e6baf81326cbbb424a62d4a447ab9f1f54fa6dda68b0e5d7782f237b4f2df8c6f9c'
+    'ea0c46970aa368cdd95324a524e34c29022b2b210acb00e9dbd3418d2af3f834d58100db8881b88101ca0499ca194a6ca9dada964a345bf97bd2dcf273c8c246'
 )
 makedepends=('cargo' 'git')
 depends=('redis')
@@ -42,5 +42,5 @@ package() {
 
     install -m755 "$pkgname"/target/release/"$_original_name" "$pkgdir"/usr/bin/"$pkgname"
     install -m600 default.toml "$pkgdir"/etc/ksutils/$_basename/
-    install -m644 "$pkgname@.service" "$pkgdir"/usr/lib/systemd/system/
+    install -m644 "$pkgname.service" "$pkgdir"/usr/lib/systemd/system/
 }

@@ -7,7 +7,7 @@ Type=simple
 Restart=on-failure
 RestartSec=10s
 Environment="RUST_LOG=info"
-ExecStart=/usr/bin/ksutils-teamspeak-management-tools %i.toml --systemd
+ExecStart=/usr/bin/ksutils-teamspeak-management-tools default.toml --systemd
 WorkingDirectory=/etc/ksutils/teamspeak-management-tools/
 KillSignal=SIGINT
 TimeoutStopSec=10
