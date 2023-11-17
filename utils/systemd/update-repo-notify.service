@@ -1,5 +1,0 @@
-[Unit]
-Description=Update repo notify service
-
-[Service]
-ExecStart=/var/lib/update/trigger.py
