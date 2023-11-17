@@ -49,3 +49,6 @@
 [submodule "repo/cinny"]
 	path = repo/cinny
 	url = https://aur.archlinux.org/cinny.git
+[submodule "utils"]
+	path = utils
+	url = https://github.com/KunoiSayami/repo-scripts.git
