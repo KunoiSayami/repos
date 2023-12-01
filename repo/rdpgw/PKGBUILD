@@ -1,0 +1,48 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+
+pkgname=rdpgw
+pkgver=2.0
+pkgrel=1
+pkgdesc='Remote Desktop Gateway in Go for deploying on Linux/BSD/Kubernetes'
+arch=('any')
+url=https://github.com/bolkedebruin/rdpgw
+source=(git+https://github.com/bolkedebruin/rdpgw.git#commit=e9e592b43a5d77d1f07ad58abdf2750a2514f7e4)
+license=('Apache-2.0')
+md5sums=('SKIP')
+makedepends=('go>=1.19')
+options=(!lto)
+depends=()
+provides=('rdpgw')
+
+prepare() {
+    cd "$srcdir/$pkgname/"
+    #git submodule update --init
+}
+
+build() {
+    cd "$srcdir/$pkgname"
+
+    export CGO_CPPFLAGS="${CPPFLAGS}"
+    export CGO_CFLAGS="${CFLAGS}"
+    export CGO_CXXFLAGS="${CXXFLAGS}"
+    #export CGO_LDFLAGS="-linkmode=external -extldflags \"${LDFLAGS}\""
+    export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+
+    sed -i 's/$(LDFLAGS)/-linkmode=external -extldflags \"${LDFLAGS}\"/g' Makefile
+
+    make -j1
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+
+    install -dm755 "$pkgdir"/usr/share/"$pkgname"/
+    install -dm755 "$pkgdir"/usr/share/license/"$pkgname"
+    install -dm755 "$pkgdir"/usr/bin
+
+    install -m755 build/"$pkgname" "$pkgdir"/usr/share/"$pkgname"/
+
+    install -Dm644 LICENSE.txt "$pkgdir"/usr/share/license/"$pkgname"/
+
+    ln -s /usr/share/"$pkgname"/"$pkgname" "$pkgdir"/usr/bin/"$pkgname"
+}
