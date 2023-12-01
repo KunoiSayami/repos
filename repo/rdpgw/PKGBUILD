@@ -2,7 +2,7 @@
 
 pkgname=rdpgw
 pkgver=2.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Remote Desktop Gateway in Go for deploying on Linux/BSD/Kubernetes'
 arch=('any')
 url=https://github.com/bolkedebruin/rdpgw
@@ -40,9 +40,11 @@ package() {
     install -dm755 "$pkgdir"/usr/share/license/"$pkgname"
     install -dm755 "$pkgdir"/usr/bin
 
-    install -m755 build/"$pkgname" "$pkgdir"/usr/share/"$pkgname"/
+    install -m755 bin/"$pkgname" "$pkgdir"/usr/share/"$pkgname"/
+    install -m755 bin/"$pkgname"-auth "$pkgdir"/usr/share/"$pkgname"/
 
     install -Dm644 LICENSE.txt "$pkgdir"/usr/share/license/"$pkgname"/
 
     ln -s /usr/share/"$pkgname"/"$pkgname" "$pkgdir"/usr/bin/"$pkgname"
+    ln -s /usr/share/"$pkgname"/"$pkgname"-auth "$pkgdir"/usr/bin/"$pkgname"-auth
 }
