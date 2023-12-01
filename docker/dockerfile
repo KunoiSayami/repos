@@ -28,7 +28,7 @@ RUN pacman --noconfirm --needed -Sy archlinux-keyring
 
 RUN pacman --noconfirm --needed -Su base-devel gnupg git yay
 
-RUN pacman --noconfirm --needed -S  python python-aiohttp python-aiofiles python-aiohttp-socks moreutils
+RUN pacman --noconfirm --needed -S  python python-aiohttp python-aiofiles python-aiohttp-socks python-asycio-timeout moreutils
 
 RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
