@@ -2,7 +2,7 @@
 
 pkgname=rdpgw
 pkgver=2.0
-pkgrel=4
+pkgrel=5
 pkgdesc='Remote Desktop Gateway in Go for deploying on Linux/BSD/Kubernetes'
 arch=('any')
 url=https://github.com/bolkedebruin/rdpgw
@@ -26,9 +26,9 @@ build() {
     export CGO_CFLAGS="${CFLAGS}"
     export CGO_CXXFLAGS="${CXXFLAGS}"
     #export CGO_LDFLAGS="-linkmode=external -extldflags \"${LDFLAGS}\""
-    export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+    export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -extldflags \"${LDFLAGS}\" -mod=readonly -modcacherw"
 
-    sed -i 's/$(LDFLAGS)/-linkmode=external -extldflags \"${LDFLAGS}\"/g' Makefile
+    sed -i 's/$(LDFLAGS)//g' Makefile
 
     make -j1
 }
