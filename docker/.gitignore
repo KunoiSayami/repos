@@ -1,3 +1,0 @@
-docker.env
-!docker.env.default
-hook*.sh
