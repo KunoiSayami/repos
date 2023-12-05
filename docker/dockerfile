@@ -34,7 +34,7 @@ RUN echo 'build ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers
 
 ADD repos /home/build/repos
 
-COPY dockerbuild.sh /home/build/
+COPY dockerbuild.sh entrypoint.sh /home/build/
 
 RUN /home/build/initfolder.sh
 
@@ -44,4 +44,4 @@ USER build
 
 # ENTRYPOINT ["bash", "-c", "/home/build/repos/utils/pkgbuild_bootstrap"]
 
-ENTRYPOINT ["bash", "-c", "/home/build/dockerbuild.sh"]
+ENTRYPOINT ["bash", "-c", "/home/build/entrypoint.sh"]

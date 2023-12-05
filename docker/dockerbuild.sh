@@ -10,7 +10,7 @@ if [ -f ./hook-run.sh ]; then
 fi
 
 if [ ! -d repos ]; then
-  git clone --depth=3 https://github.com/kunoisayami/repos
+  git clone --depth=3 $1 repos
 
 
   pushd repos
