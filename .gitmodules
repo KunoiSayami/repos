@@ -52,3 +52,6 @@
 [submodule "utils"]
 	path = utils
 	url = https://github.com/KunoiSayami/repo-scripts.git
+[submodule "repo/zsh-theme-powerlevel10k-git"]
+	path = repo/zsh-theme-powerlevel10k-git
+	url = https://aur.archlinux.org/zsh-theme-powerlevel10k-git.git
