@@ -18,12 +18,11 @@ whitelist_ip = []
 # [[permissions]]
 # channel_id = 1
 # it means set i_channel_needed_permission_modify_power to 75 and i_channel_needed_delete_power to 60
-# See: https://gist.github.com/EdisonJwa/630383a12281f3db2186a14e1d0fa901 for more key information
+# See: https://github.com/KunoiSayami/teamspeak-autochannel.rs/wiki/Permission-List for more key information
 # map = [[86, 75], [133, 60]]
 
 [misc]
 # interval = 5
-# systemd = false
 
 # [custom_message]
 # move_to_channel = "You have been moved into your channel."
@@ -31,9 +30,9 @@ whitelist_ip = []
 [telegram]
 api_key = ""
 target = 0
+api_server = ""
 
 # [raw_query]
-# This section priority is higher than web_query
 # server = ""
 # port = 10011
 # user = "serveradmin"
