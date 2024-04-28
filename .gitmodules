@@ -55,3 +55,6 @@
 [submodule "repo/zsh-theme-powerlevel10k-git"]
 	path = repo/zsh-theme-powerlevel10k-git
 	url = https://aur.archlinux.org/zsh-theme-powerlevel10k-git.git
+[submodule "repo/prismlauncher"]
+	path = repo/prismlauncher
+	url = https://aur.archlinux.org/prismlauncher.git
