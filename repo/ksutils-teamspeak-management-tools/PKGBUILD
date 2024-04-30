@@ -3,7 +3,7 @@
 _original_name=teamspeak-management-tools
 _basename=teamspeak-management-tools
 pkgname=ksutils-$_basename
-pkgver=5.0.2
+pkgver=5.1.0
 pkgrel=1
 pkgdesc='A teamspeak tools that help you manage your teamspeak server (include auto channel).'
 arch=('any')
@@ -14,13 +14,13 @@ source=(
     "default.toml"
 )
 license=('AGPL3')
+optdepends=('redis: As key-value map backend')
 sha512sums=(
     'SKIP'
     '444af3701bfb593266efe8b2fa7f6e87cdca0bb3e36865de4d662acfdbc47e6baf81326cbbb424a62d4a447ab9f1f54fa6dda68b0e5d7782f237b4f2df8c6f9c'
-    '44b66d2bf20465d761eb603679484802cf12a6d42cba20c95466680ccac042b860c1c5d772eff97ba82953879d812df67ab2d4771ae00bc9792557a6f62698f4'
+    'd97f35f94b8f97f30f4be2d989b47d3526c077edd6ff6cbbdd46129e0c78484e9bc748b06b2e95672d688e0c2efe488c3946c6d80181c6b276e897f0b32def29'
 )
 makedepends=('cargo' 'git')
-depends=('redis')
 provides=("$_basename")
 options=(!lto)
 backup=("etc/ksutils/$_basename/default.toml")

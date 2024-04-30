@@ -1,3 +1,4 @@
+additional = []
 [server]
 # server_id = 1
 channel_id = [1, 2]
@@ -6,6 +7,7 @@ privilege_group_id = 5
 ignore_user = ["serveradmin"]
 whitelist_ip = []
 # redis_server = ""
+# leveldb = ""
 # track_channel_member = ""
 
 # [mute_porter]
