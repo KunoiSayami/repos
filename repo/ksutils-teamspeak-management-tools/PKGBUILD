@@ -3,7 +3,7 @@
 _original_name=teamspeak-management-tools
 _basename=teamspeak-management-tools
 pkgname=ksutils-$_basename
-pkgver=5.1.1
+pkgver=5.2.1
 pkgrel=1
 pkgdesc='A teamspeak tools that help you manage your teamspeak server (include auto channel).'
 arch=('any')
@@ -18,7 +18,7 @@ optdepends=('redis: As key-value map backend')
 sha512sums=(
     'SKIP'
     '444af3701bfb593266efe8b2fa7f6e87cdca0bb3e36865de4d662acfdbc47e6baf81326cbbb424a62d4a447ab9f1f54fa6dda68b0e5d7782f237b4f2df8c6f9c'
-    'd97f35f94b8f97f30f4be2d989b47d3526c077edd6ff6cbbdd46129e0c78484e9bc748b06b2e95672d688e0c2efe488c3946c6d80181c6b276e897f0b32def29'
+    '9e9a47f5d05b77c4e4533e480ba12378d2460b28f3f18819e6e27060a0c9068c19cfe4732d38dfaa53a9eb39a6d501d51c4f4406d1b1e94fe711eaf46070fc8a'
 )
 makedepends=('cargo' 'git')
 provides=("$_basename")
