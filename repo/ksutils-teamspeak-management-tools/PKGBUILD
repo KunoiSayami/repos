@@ -4,7 +4,7 @@ _original_name=teamspeak-management-tools
 _basename=teamspeak-management-tools
 pkgname=ksutils-$_basename
 pkgver=5.2.3
-pkgrel=1
+pkgrel=2
 pkgdesc='A teamspeak tools that help you manage your teamspeak server (include auto channel).'
 arch=('any')
 url=https://github.com/KunoiSayami/teamspeak-management-tools.rs
@@ -32,7 +32,7 @@ prepare() {
 
 build() {
     cd "$pkgname"
-    cargo build --release
+    cargo build --release --features all
 }
 
 package() {
