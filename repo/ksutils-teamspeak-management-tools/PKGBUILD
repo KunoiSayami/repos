@@ -3,7 +3,7 @@
 _original_name=teamspeak-management-tools
 _basename=teamspeak-management-tools
 pkgname=ksutils-$_basename
-pkgver=6.0.0
+pkgver=6.0.1
 pkgrel=1
 pkgdesc='A TeamSpeak tools that help you manage your TeamSpeak server (include auto channel and more).'
 arch=('any')
