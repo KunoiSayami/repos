@@ -13,7 +13,7 @@ depends=('bash')
 optdepends=('socat: for standalone mode'
             'oath-toolkit: Used to compute the OTP for some DNS providers')
 source=("acme.sh-$pkgver.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
-sha512sums=('83d080b461662bf2c5cfa9cb51aaf41d7f873f54908e2e5f94d7e3fe8e3f6953d73aafb66adc97455aa958f37c72ef77ba475c7d7cbb3ca3c5bbffb4937c4bae')
+sha512sums=('b43579823ac6db85a2c36ab4aa049de199b072bfa096094f7cd424a3696e9a35a91532f9c0cf7cd664f17317e89e5776f17b274e4bf46d97f034ff31c363ffb6')
 
 provides=('acme.sh')
 conflicts=('acme.sh')
