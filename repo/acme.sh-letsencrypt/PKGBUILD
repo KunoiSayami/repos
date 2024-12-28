@@ -3,7 +3,7 @@
 # Contributor: Gavin Lloyd <gavinhungry@gmail.com>
 
 pkgname=acme.sh-letsencrypt
-pkgver=3.0.7
+pkgver=3.1.0
 pkgrel=1
 pkgdesc='An ACME Shell script, an acme client alternative to certbot, but we use letsencrypt by default'
 arch=('any')
