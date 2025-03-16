@@ -18,7 +18,7 @@ jobs:
         run: |
           pacman-key --init
           pacman --noconfirm --needed -Syu binutils git python pyalpm python-aiohttp python-aiofiles
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Add safe directory
         shell: bash
         run: |
@@ -42,6 +42,6 @@ jobs:
           if [ ! -z "$(git --no-pager diff --staged)" ]; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '<41898282+github-actions[bot]@users.noreply.github.com>'
-            git commit -s -m "Auto update aur repository $(date +%Y%m%d%H%M)$(echo -e '\n\nUpdate packages:')$(git diff --name-only | sed -e 's|^repo/|* |')" -a
+            git commit -s -m "ci: Auto update aur repository $(date +%Y%m%d%H%M)$(echo -e '\n\nUpdate packages:')$(git diff --name-only | sed -e 's|^repo/|* |')" -a
             git push
           fi

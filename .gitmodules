@@ -55,3 +55,6 @@
 [submodule "repo/prismlauncher"]
 	path = repo/prismlauncher
 	url = https://aur.archlinux.org/prismlauncher.git
+[submodule "repo/shadow-tls"]
+	path = repo/shadow-tls
+	url = https://aur.archlinux.org/shadow-tls.git
