@@ -1,3 +1,4 @@
 meson
 glaze
 abseil-cpp
+fmt
