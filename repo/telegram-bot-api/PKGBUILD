@@ -15,7 +15,7 @@ provides=('telegram-bot-api')
 
 prepare() {
     cd "$srcdir/$pkgname/"
-    git submodule update -rR-init
+    git submodule update --init
 }
 
 build() {
