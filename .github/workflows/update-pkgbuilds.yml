@@ -86,19 +86,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get latest release
+      - name: Get latest version from CMakeLists.txt
         id: version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name | ltrimstr("v")')
-          COMMIT=$(gh api repos/tdlib/telegram-bot-api/git/refs/tags/"$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name')" \
-            --jq 'if .object.type == "tag" then .object.sha else .object.sha end')
-          # Resolve annotated tag to commit
-          TYPE=$(gh api repos/tdlib/telegram-bot-api/git/refs/tags/"$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name')" --jq '.object.type')
-          if [ "$TYPE" = "tag" ]; then
-            COMMIT=$(gh api repos/tdlib/telegram-bot-api/git/tags/"$COMMIT" --jq '.object.sha')
-          fi
+          VERSION=$(curl -sf "https://raw.githubusercontent.com/tdlib/telegram-bot-api/master/CMakeLists.txt" \
+            | grep -oP 'project\(TelegramBotApi VERSION \K[0-9]+\.[0-9]+')
+          COMMIT=$(gh api repos/tdlib/telegram-bot-api/commits/master --jq '.sha')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
 
