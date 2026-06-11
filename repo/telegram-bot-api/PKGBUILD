@@ -1,12 +1,12 @@
 # Maintainer: KunoiSayami <i@leanhe.dev>
 
 pkgname=telegram-bot-api
-pkgver=10.0
+pkgver=10.1
 pkgrel=1
 pkgdesc='The Telegram Bot API provides an HTTP API for creating Telegram Bots.'
 arch=('any')
 url=https://github.com/tdlib/telegram-bot-api/
-source=(git+https://github.com/tdlib/telegram-bot-api.git#commit=01a3679c0bbf9bbba03d1d3e20f621fa4becddcc)
+source=(git+https://github.com/tdlib/telegram-bot-api.git#commit=0a9e5696ba149c99bedf972f040d2e28776a8a4f)
 license=('BSL-1.0')
 md5sums=('SKIP')
 makedepends=('gperf' 'cmake' 'gcc' 'git')
