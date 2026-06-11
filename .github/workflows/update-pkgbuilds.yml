@@ -1,0 +1,135 @@
+name: Update PKGBUILDs
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-sing-box-beta-bin:
+    name: Update sing-box-beta-bin
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest pre-release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(gh api repos/SagerNet/sing-box/releases \
+            --jq '[.[] | select(.prerelease)] | first | .tag_name | ltrimstr("v")')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: check
+        run: |
+          CURRENT=$(grep '^_pkgver=' repo/sing-box-beta-bin/PKGBUILD | cut -d'"' -f2)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" = "${{ steps.version.outputs.version }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download assets and compute sha256sums
+        if: steps.check.outputs.skip == 'false'
+        id: sums
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GIT_URL: https://github.com/SagerNet/sing-box
+        run: |
+          for ARCH in x86_64 aarch64 armv7h; do
+            # upstream uses armv7hl in filenames for armv7h
+            FILE_ARCH="$ARCH"
+            [ "$ARCH" = "armv7h" ] && FILE_ARCH="armv7hl"
+            FILE="sing-box_${VERSION}_linux_${FILE_ARCH}.pkg.tar.zst"
+            URL="$GIT_URL/releases/download/v${VERSION}/$FILE"
+            wget -q "$URL" -O "$FILE"
+            SUM=$(sha256sum "$FILE" | awk '{print $1}')
+            echo "sum_${ARCH}=$SUM" >> "$GITHUB_OUTPUT"
+            rm "$FILE"
+          done
+
+      - name: Update PKGBUILD
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SUM_X86_64: ${{ steps.sums.outputs.sum_x86_64 }}
+          SUM_ARMV7H: ${{ steps.sums.outputs.sum_armv7h }}
+          SUM_AARCH64: ${{ steps.sums.outputs.sum_aarch64 }}
+        run: |
+          sed -i "s/^_pkgver=.*/_pkgver=\"${VERSION}\"/" repo/sing-box-beta-bin/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=\"1\"/" repo/sing-box-beta-bin/PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=(\"${SUM_X86_64}\")/" repo/sing-box-beta-bin/PKGBUILD
+          sed -i "s/^sha256sums_armv7h=.*/sha256sums_armv7h=(\"${SUM_ARMV7H}\")/" repo/sing-box-beta-bin/PKGBUILD
+          sed -i "s/^sha256sums_aarch64=.*/sha256sums_aarch64=(\"${SUM_AARCH64}\")/" repo/sing-box-beta-bin/PKGBUILD
+
+      - name: Commit and push
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo/sing-box-beta-bin/PKGBUILD
+          git commit -m "feat(pkg): Update sing-box-beta-bin to ${VERSION}"
+          git push
+
+  update-telegram-bot-api:
+    name: Update telegram-bot-api
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name | ltrimstr("v")')
+          COMMIT=$(gh api repos/tdlib/telegram-bot-api/git/refs/tags/"$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name')" \
+            --jq 'if .object.type == "tag" then .object.sha else .object.sha end')
+          # Resolve annotated tag to commit
+          TYPE=$(gh api repos/tdlib/telegram-bot-api/git/refs/tags/"$(gh api repos/tdlib/telegram-bot-api/releases/latest --jq '.tag_name')" --jq '.object.type')
+          if [ "$TYPE" = "tag" ]; then
+            COMMIT=$(gh api repos/tdlib/telegram-bot-api/git/tags/"$COMMIT" --jq '.object.sha')
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: check
+        run: |
+          CURRENT=$(grep '^pkgver=' repo/telegram-bot-api/PKGBUILD | cut -d'=' -f2)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" = "${{ steps.version.outputs.version }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update PKGBUILD
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          COMMIT: ${{ steps.version.outputs.commit }}
+        run: |
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" repo/telegram-bot-api/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" repo/telegram-bot-api/PKGBUILD
+          sed -i "s/#commit=[0-9a-f]*/#commit=${COMMIT}/" repo/telegram-bot-api/PKGBUILD
+
+      - name: Commit and push
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo/telegram-bot-api/PKGBUILD
+          git commit -m "feat(pkg): Update telegram-bot-api to ${VERSION}"
+          git push
