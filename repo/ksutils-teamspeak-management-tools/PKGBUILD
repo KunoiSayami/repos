@@ -14,7 +14,7 @@ source=(
     "default.toml"
 )
 license=('AGPL3')
-optdepends=('redis: As key-value map backend')
+optdepends=('valkey: As key-value map backend')
 sha512sums=(
     'SKIP'
     '444af3701bfb593266efe8b2fa7f6e87cdca0bb3e36865de4d662acfdbc47e6baf81326cbbb424a62d4a447ab9f1f54fa6dda68b0e5d7782f237b4f2df8c6f9c'
@@ -24,11 +24,6 @@ makedepends=('cargo' 'git')
 provides=("$_basename")
 options=(!lto)
 backup=("etc/ksutils/$_basename/default.toml")
-
-prepare() {
-    cd "$pkgname"
-    git submodule update --init
-}
 
 build() {
     cd "$pkgname"
