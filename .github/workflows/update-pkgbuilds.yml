@@ -129,6 +129,68 @@ jobs:
           git commit -m "feat(pkg): Update telegram-bot-api to ${VERSION}"
           git push
 
+  update-acme-sh-letsencrypt:
+    name: Update acme.sh-letsencrypt
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get latest release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(gh api repos/acmesh-official/acme.sh/releases/latest \
+            --jq '.tag_name | ltrimstr("v")')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: check
+        run: |
+          CURRENT=$(grep '^pkgver=' repo/acme.sh-letsencrypt/PKGBUILD | cut -d'=' -f2)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" = "${{ steps.version.outputs.version }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute sha512sum
+        if: steps.check.outputs.skip == 'false'
+        id: sums
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GIT_URL: https://github.com/acmesh-official/acme.sh
+        run: |
+          FILE="acme.sh-${VERSION}.tar.gz"
+          wget -q "$GIT_URL/archive/refs/tags/${VERSION}.tar.gz" -O "$FILE"
+          SUM=$(sha512sum "$FILE" | awk '{print $1}')
+          echo "sha512=$SUM" >> "$GITHUB_OUTPUT"
+          rm "$FILE"
+
+      - name: Update PKGBUILD
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA512: ${{ steps.sums.outputs.sha512 }}
+        run: |
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" repo/acme.sh-letsencrypt/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" repo/acme.sh-letsencrypt/PKGBUILD
+          sed -i "s/^sha512sums=.*/sha512sums=('${SHA512}')/" repo/acme.sh-letsencrypt/PKGBUILD
+
+      - name: Commit and push
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo/acme.sh-letsencrypt/PKGBUILD
+          git commit -m "feat(pkg): Update acme.sh-letsencrypt to ${VERSION}"
+          git push
+
   update-ksutils-teamspeak-management-tools:
     name: Update ksutils-teamspeak-management-tools
     runs-on: ubuntu-latest
