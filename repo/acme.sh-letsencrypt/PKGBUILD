@@ -3,7 +3,7 @@
 # Contributor: Gavin Lloyd <gavinhungry@gmail.com>
 
 pkgname=acme.sh-letsencrypt
-pkgver=3.1.0
+pkgver=3.1.3
 pkgrel=1
 pkgdesc='An ACME Shell script, an acme client alternative to certbot, but we use letsencrypt by default'
 arch=('any')
@@ -13,7 +13,7 @@ depends=('bash')
 optdepends=('socat: for standalone mode'
             'oath-toolkit: Used to compute the OTP for some DNS providers')
 source=("acme.sh-$pkgver.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
-sha512sums=('b43579823ac6db85a2c36ab4aa049de199b072bfa096094f7cd424a3696e9a35a91532f9c0cf7cd664f17317e89e5776f17b274e4bf46d97f034ff31c363ffb6')
+sha512sums=('7e82ee43ea7c45badc5df1e288fba5c5d4f02e4b52550288f7e0a6ee54f7a72032a3dd0bdd5351ce684bb023f1a7be47a189ef71466faa65eb1818b3f3ce6de0')
 
 provides=('acme.sh')
 conflicts=('acme.sh')
