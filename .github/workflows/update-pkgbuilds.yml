@@ -76,7 +76,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo/sing-box-beta-bin/PKGBUILD
           git commit -m "feat(pkg): Update sing-box-beta-bin to ${VERSION}"
-          git push
+          git push || (git pull --rebase && git push)
 
   update-telegram-bot-api:
     name: Update telegram-bot-api
@@ -127,7 +127,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo/telegram-bot-api/PKGBUILD
           git commit -m "feat(pkg): Update telegram-bot-api to ${VERSION}"
-          git push
+          git push || (git pull --rebase && git push)
 
   update-acme-sh-letsencrypt:
     name: Update acme.sh-letsencrypt
@@ -189,7 +189,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo/acme.sh-letsencrypt/PKGBUILD
           git commit -m "feat(pkg): Update acme.sh-letsencrypt to ${VERSION}"
-          git push
+          git push || (git pull --rebase && git push)
 
   update-ksutils-teamspeak-management-tools:
     name: Update ksutils-teamspeak-management-tools
@@ -236,4 +236,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo/ksutils-teamspeak-management-tools/PKGBUILD
           git commit -m "feat(pkg): Update ksutils-teamspeak-management-tools to ${VERSION}"
-          git push
+          git push || (git pull --rebase && git push)
