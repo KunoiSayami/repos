@@ -1,5 +1,2 @@
-libidn2
 zstd
-brotli
 libpsl
-lzip
