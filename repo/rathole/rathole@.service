@@ -1,0 +1,17 @@
+[Unit]
+Description=Rathole Service (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=1048576
+Environment="RUST_LOG=info"
+ExecStart=/usr/bin/rathole /etc/rathole/%i.toml
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

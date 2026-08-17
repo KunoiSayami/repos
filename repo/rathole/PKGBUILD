@@ -1,0 +1,68 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+# Upstream author: Yujia Qiao <code@rapiz.me>
+
+pkgname=rathole
+pkgver=0.5.0
+pkgrel=1
+pkgdesc='A lightweight and high-performance reverse proxy for NAT traversal'
+arch=('x86_64' 'aarch64')
+url=https://github.com/rapiz1/rathole
+source=(
+    "$pkgname::git+https://github.com/rapiz1/rathole.git#tag=v$pkgver"
+    "rathole@.service"
+    "ratholes@.service"
+    "ratholec@.service"
+)
+license=('Apache-2.0')
+sha512sums=(
+    'SKIP'
+    '0119f69a5276e07d7c436b4a6b2cc5884ebe7ecd3b66bb8ae08581433e57ce669d7bba6839a7230b53a773e32d63e84396a9f478345f0d88a320af3e0f46b2f2'
+    '80bf28037846940f232f5b75108bcafbb552df273a94ac7bd200cc52fa693436fd3506277be96cd016b7c51c0413488afced5c6594fe67126f99276d5cd34f28'
+    '72439955282e1d0595a5890d917e27c40601424e1173f1f3255e410a87a23ed30452f6ce0d5a936bf0ef89a5cd2a100fd4673a198a51d1d6f191b8dd443d7e2f'
+)
+makedepends=('cargo' 'git')
+depends=('systemd')
+options=(!lto)
+
+prepare() {
+    cd "$pkgname"
+
+    # The upstream Cargo.lock pins time 0.3.29, which fails to build on
+    # current rustc (E0282 in time's format_description parser). Only the
+    # time crates move; everything else stays at the locked versions.
+    cargo update -p time
+
+    cargo fetch --locked
+}
+
+build() {
+    cd "$pkgname"
+
+    # Pin the target dir so a global target-dir in ~/.cargo/config.toml
+    # cannot move the build output out from under package().
+    export CARGO_TARGET_DIR="$srcdir/target"
+    export CFLAGS+=' -ffat-lto-objects'
+    cargo build --release --offline
+}
+
+check() {
+    cd "$pkgname"
+
+    export CARGO_TARGET_DIR="$srcdir/target"
+    cargo test --release --offline
+}
+
+package() {
+    install -dm700 "$pkgdir"/etc/rathole
+    install -dm755 "$pkgdir"/usr/bin
+    install -dm755 "$pkgdir"/usr/lib/systemd/system
+
+    install -m755 target/release/"$pkgname" "$pkgdir"/usr/bin/"$pkgname"
+
+    install -m644 "rathole@.service" "$pkgdir"/usr/lib/systemd/system/
+    install -m644 "ratholes@.service" "$pkgdir"/usr/lib/systemd/system/
+    install -m644 "ratholec@.service" "$pkgdir"/usr/lib/systemd/system/
+
+    install -Dm644 "$pkgname"/LICENSE "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE
+    install -Dm644 "$pkgname"/README.md "$pkgdir"/usr/share/doc/"$pkgname"/README.md
+}
