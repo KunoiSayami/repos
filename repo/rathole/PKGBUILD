@@ -45,12 +45,9 @@ build() {
     cargo build --release --offline
 }
 
-check() {
-    cd "$pkgname"
-
-    export CARGO_TARGET_DIR="$srcdir/target"
-    cargo test --release --offline
-}
+# No check(): upstream's integration tests use the self-signed certs in
+# examples/tls/, which expired in 2023. The client retries the failed
+# handshake with backoff forever, so `cargo test` hangs instead of failing.
 
 package() {
     install -dm700 "$pkgdir"/etc/rathole
