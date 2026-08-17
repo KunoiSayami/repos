@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get latest pre-release version
         id: version
@@ -84,7 +84,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get latest version from CMakeLists.txt
         id: version
@@ -135,7 +135,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get latest release version
         id: version
@@ -197,7 +197,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Get latest release version
         id: version
@@ -236,4 +236,51 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add repo/ksutils-teamspeak-management-tools/PKGBUILD
           git commit -m "feat(pkg): Update ksutils-teamspeak-management-tools to ${VERSION}"
+          git push || (git pull --rebase && git push)
+
+  update-rathole:
+    name: Update rathole
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get latest release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(gh api repos/rapiz1/rathole/releases/latest \
+            --jq '.tag_name | ltrimstr("v")')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: check
+        run: |
+          CURRENT=$(grep '^pkgver=' repo/rathole/PKGBUILD | cut -d'=' -f2)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" = "${{ steps.version.outputs.version }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update PKGBUILD
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" repo/rathole/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" repo/rathole/PKGBUILD
+
+      - name: Commit and push
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo/rathole/PKGBUILD
+          git commit -m "feat(pkg): Update rathole to ${VERSION}"
           git push || (git pull --rebase && git push)
