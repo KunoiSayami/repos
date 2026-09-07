@@ -1,0 +1,40 @@
+# Maintainer: KunoiSayami <i@leanhe.dev>
+# Upstream author: anthwlock (fork of ponchio/untrunc)
+
+pkgname=untrunc-git
+_pkgname="${pkgname%-git}"
+pkgver=r410.9d86ec9
+pkgrel=1
+pkgdesc='Restore a truncated mp4/mov, given a similar working reference video'
+arch=('x86_64' 'aarch64')
+url='https://github.com/anthwlock/untrunc'
+license=('GPL-2.0-only')
+depends=('ffmpeg')
+makedepends=('git')
+provides=('untrunc')
+conflicts=('untrunc')
+source=("$_pkgname::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$_pkgname"
+
+    printf 'r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd "$_pkgname"
+
+    # FF_VER defaults to "shared", which links against the system FFmpeg
+    # libraries instead of the vendored FFmpeg 3.3.9 the Makefile would
+    # otherwise download and build statically.
+    make IS_RELEASE=1
+}
+
+package() {
+    cd "$_pkgname"
+
+    install -Dm755 "$_pkgname" "$pkgdir/usr/bin/$_pkgname"
+    install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}
