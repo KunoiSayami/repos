@@ -1,0 +1,4 @@
+#!/bin/bash
+# HTTP/2 test server binds ::1 only, but localhost resolves to 127.0.0.1 only in docker (no IPv6)
+grep -q "in6addr_any" PKGBUILD && exit
+sed -i '/^build() {/a\  sed -i "s/sin6_addr = in6addr_loopback;/sin6_addr = in6addr_any;/" "$srcdir/$pkgname-$pkgver/tests/libtest.c"' PKGBUILD
