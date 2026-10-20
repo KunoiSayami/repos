@@ -1,7 +1,7 @@
 # Maintainer: Yakov Till <yakov.till@gmail.com>
 
 pkgname=zsign-bin
-pkgver=1.1.2
+pkgver=1.1.3
 pkgrel=1
 pkgdesc="Fast cross-platform iOS code signing tool — codesign alternative without Xcode/macOS"
 arch=('x86_64')
@@ -13,7 +13,7 @@ provides=('zsign')
 conflicts=('zsign')
 source=("zsign-${pkgver}-linux-x86_64.tar.gz::${url}/releases/download/v${pkgver}/zsign-linux-x86_64.tar.gz"
         "LICENSE-v${pkgver}::${url}/raw/refs/tags/v${pkgver}/LICENSE")
-sha256sums=('d55e6a8650949a260892a9687ac1dfe4a9c79c2e3ecfe00a0eeb09b7b694282e'
+sha256sums=('e384af9432a86d72262436f6df32c39d4193a31fcde5349f1ac6c3c293c8b8b2'
             'SKIP')
 
 package() {
