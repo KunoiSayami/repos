@@ -346,3 +346,50 @@ jobs:
           git add repo/zsign-bin/PKGBUILD
           git commit -m "feat(pkg): Update zsign-bin to ${VERSION}"
           git push || (git pull --rebase && git push)
+
+  update-ksutils-dnsproxy:
+    name: Update ksutils-dnsproxy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get latest release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(gh api repos/KunoiSayami/dnsproxy.rs/releases/latest \
+            --jq '.tag_name | ltrimstr("v")')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: check
+        run: |
+          CURRENT=$(grep '^pkgver=' repo/ksutils-dnsproxy/PKGBUILD | cut -d'=' -f2)
+          echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" = "${{ steps.version.outputs.version }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update PKGBUILD
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" repo/ksutils-dnsproxy/PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" repo/ksutils-dnsproxy/PKGBUILD
+
+      - name: Commit and push
+        if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repo/ksutils-dnsproxy/PKGBUILD
+          git commit -m "feat(pkg): Update ksutils-dnsproxy to ${VERSION}"
+          git push || (git pull --rebase && git push)
