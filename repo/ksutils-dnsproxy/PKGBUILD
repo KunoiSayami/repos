@@ -3,7 +3,7 @@
 _basename=dnsproxy
 _binname=doh-upstream
 pkgname=ksutils-$_basename
-pkgver=0.25.0
+pkgver=0.26.0
 pkgrel=1
 pkgdesc="A DNS proxy/upstream client (DoH, DoH3, DoT, DoQ), ported from AdGuard dnsproxy's Go implementation"
 arch=('x86_64' 'aarch64')
