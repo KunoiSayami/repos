@@ -19,7 +19,7 @@ sha512sums=(
     'e6765fdc3f1b12cb28da901de42561ac3f36bb180a983ca053b8502fb4465cb527c9059c624997ced3fa0d50f7c43a5f3e909e070c8288f7785b84263530675e'
     '4ad71fa6d8ba22c9f142c44b73e0e2bfb9b933a2a03ef254095b8b2cdd9050f6054a7cf2c82cd4a42334baefe40e48e36b6a9f66510ec9f537e80e9d88f2fedf'
 )
-makedepends=('cargo' 'git')
+makedepends=('rust' 'git')
 depends=('gcc-libs')
 options=(!lto !debug)
 backup=("etc/ksutils/$_basename/upstreams.txt")
